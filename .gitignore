@@ -5,6 +5,7 @@
 
 postgres/
 .env
+.gitignore
 
 # Logs
 logs
