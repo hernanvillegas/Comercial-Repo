@@ -20,7 +20,7 @@ export class ProductsController {
 
   @Get(':termino_busqueda')
   findOne(@Param('termino_busqueda') termino_busqueda: string) {
-    return this.productsService.findOne(termino_busqueda);
+    return this.productsService.findOnePlain(termino_busqueda);
   }
 
 
@@ -32,8 +32,8 @@ export class ProductsController {
     return this.productsService.update( id, updateProductDto);
   }
 
-  @Delete(':id_moto')
-  remove(@Param('id_moto', ParseUUIDPipe) id_moto: string) {
-    return this.productsService.remove(id_moto);
+    @Delete(':id')
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.productsService.remove(id);
   }
 }

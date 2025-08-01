@@ -1,12 +1,13 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ProductImage } from "./";
 
 
-@Entity()
+@Entity({name:'producto_motos '})
 export class Product {
 
     @PrimaryGeneratedColumn('uuid')
-    id_moto: string;
-
+    id: string;
+    
     @Column({
         type: 'text',
         unique: true,
@@ -56,25 +57,21 @@ export class Product {
 
     @Column({
         type: 'text',
-        nullable: true
     })
     tipo_moto: string; // nueva, seminueva, usada
 
     @Column('float', {
         default: 0,
-        nullable: true
     })
     precio_compra: number;
 
     @Column('float', {
         default: 0,
-        nullable: true
     })
     precio_venta: number;
 
     @Column({
         type: 'text',
-        nullable: true
     })
     estado_moto: string; //vendida, disponible, reservada, en mantenimiento
 
@@ -85,19 +82,16 @@ export class Product {
 
     @Column({
         type: 'date',
-        nullable: true
     })
     fecha_venta: Date;
 
     @Column({
         type: 'text',
-        nullable: true
     })
     genero_moto: string; //moto de varon o mujer UNISEX
 
     @Column({
         type: 'text',
-        nullable: true
     })
     traccion: string; //2x2, 2x1
 
@@ -122,9 +116,13 @@ export class Product {
 
 
     //FALTA RELACION CON PROVEEDORES Y CON MODELOS
-
     //FALTAN LAS IMAGENES 
-
+    @OneToMany(
+        ()=>ProductImage,
+        (productImage)=>productImage.product,
+        {cascade:true, eager:true}
+    )
+    images?:ProductImage[];
 
 
     // por si no viene un campo para la insercion de base de datos

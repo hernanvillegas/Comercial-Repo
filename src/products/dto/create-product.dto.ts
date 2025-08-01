@@ -73,5 +73,10 @@ export class CreateProductDto {
         @IsArray()
         @IsOptional()
         etiquetas:string[];
+
+        @IsString({each:true})
+        @IsArray()
+        @IsOptional()
+        images?:string[];
     
 }
