@@ -88,6 +88,32 @@ export const initialData: SeedData = {
         
 
         },
+        {
+        images: [
+                '1740176-00-A_0_2000.jpg',
+                '1740176-00-A_1.jpg',
+                ],
+        titulo_moto: 'moto muy pistera',
+        codigo_moto: '333',
+        poliza_importacion: 333,
+        numero_chasis: '333',
+        numero_motor: '33333333',
+        color_moto: 'azul',
+        cantidad_moto: 8,
+        tipo_moto: 'seminueva',
+        precio_compra: 17.8,
+        precio_venta: 20.78,
+        estado_moto: 'mantenimiento',
+        fecha_ingreso: new Date ('2025/07/26'),
+        fecha_venta: new Date ('2025/07/26'),
+        genero_moto: 'niños',
+        traccion: '2x2',
+        descripcion: 'es una moto muy veloz',
+        slug: 'moto_muy_pistera',
+        etiquetas: ['moto'],
+        
+
+        },
        
         
         
