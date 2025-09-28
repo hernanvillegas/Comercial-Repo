@@ -7,6 +7,7 @@ import { PaginationDto } from 'src/common/dto/paginacion.dto';
 
 import {validate as isUUID} from 'uuid';
 import { ProductImage, Product } from './entities';
+import { User } from 'src/auth/entities/user.entity';
 @Injectable()
 export class ProductsService {
 
@@ -22,12 +23,13 @@ export class ProductsService {
     private readonly dataSource : DataSource,
   ){}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto,user:User) {
     try {
       const {images=[],...productDetails}=createProductDto;
       const product = this.productRepository.create({
         ...productDetails,
-        images:images.map(image =>this.productImageRepository.create({url:image}))
+        images:images.map(image =>this.productImageRepository.create({url:image})),
+        user
     }); // solo crea la instancia del poroducto
       await this.productRepository.save(product); // lo guarda en la bd 
       return {...product,images};
@@ -92,7 +94,7 @@ export class ProductsService {
     }
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, user:User) {
 
     const {images, ...toUpdate} = updateProductDto; // actualiza sin las imagenes
     const product = await this.productRepository.preload({ id, ...toUpdate}); //una sola linea para actualizar imagenes
@@ -115,6 +117,7 @@ export class ProductsService {
         //product.images = await this.productImageRepository.findBy({product:{id_moto:id}})
       }
 
+      product.user= user;
       await queryRunner.manager.save(product);//aun no impacta la bd
       //await this.productRepository.save(product)
 

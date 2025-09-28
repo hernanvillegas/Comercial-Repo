@@ -1,5 +1,6 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ProductImage } from "./";
+import { User } from "src/auth/entities/user.entity";
 
 
 @Entity({name:'producto_motos '})
@@ -123,6 +124,15 @@ export class Product {
         {cascade:true, eager:true}
     )
     images?:ProductImage[];
+
+
+
+    @ManyToOne(
+        ()=>User,
+        (user)=>user.product,
+        {eager:true}  //para ver que usuario creo el producto
+    )
+    user:User
 
 
     // por si no viene un campo para la insercion de base de datos

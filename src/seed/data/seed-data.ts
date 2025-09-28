@@ -1,3 +1,6 @@
+import * as bcrypt from 'bcrypt';
+
+
 interface SeedProduct {
 titulo_moto: string;
 codigo_moto: string;
@@ -28,13 +31,38 @@ images:string[];
 
 type ValidColor = 'negro'|'rojo'|'azul'|'cafe'|'blanco';
 
+interface SeedUser{
+
+    email: string;
+    fullName: string;
+    password: string;
+    roles: string[];
+}
+
 
 interface SeedData {
+    user: SeedUser[],
     products: SeedProduct[];
 }
 
 
 export const initialData: SeedData = {
+
+    user:[
+        {
+            email: 'test1@gmail.com',
+            fullName:'Test one',
+            password: bcrypt.hashSync('abc123',10),
+            roles:['admin'],
+        },
+        {
+            email: 'test2@gmail.com',
+            fullName:'Test two',
+            // password: 'abc123',
+            password: bcrypt.hashSync('abc123',10),
+            roles:['admin','super-admin']
+        }
+    ],
     products: [
         {
         images: [
