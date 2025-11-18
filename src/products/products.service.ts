@@ -9,6 +9,7 @@ import {validate as isUUID} from 'uuid';
 import { ProductImage, Product } from './entities';
 import { User } from 'src/auth/entities/user.entity';
 @Injectable()
+
 export class ProductsService {
 
   private readonly logger = new Logger('ProductsService');
