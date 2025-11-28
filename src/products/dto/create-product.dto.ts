@@ -78,5 +78,10 @@ export class CreateProductDto {
         @IsArray()
         @IsOptional()
         images?:string[];
+
+        @IsInt()
+        @IsPositive()
+        @IsOptional()
+        idProveedor: number;
     
 }

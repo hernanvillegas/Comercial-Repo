@@ -17,6 +17,7 @@ import { FilesModule } from './files/files.module';
 import { AuthModule } from './auth/auth.module';
 import { MarcaModule } from './marca/marca.module';
 import { ModeloModule } from './modelo/modelo.module';
+import { ProveedorModule } from './proveedor/proveedor.module';
 
 @Module({
   imports: [
@@ -51,7 +52,9 @@ import { ModeloModule } from './modelo/modelo.module';
 
     MarcaModule,
 
-    ModeloModule
+    ModeloModule,
+
+    ProveedorModule
   ],
   controllers: [AppController],
   providers: [AppService],

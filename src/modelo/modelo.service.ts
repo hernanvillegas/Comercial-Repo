@@ -34,9 +34,6 @@ export class ModeloService {
         `La marca ${marcaExiste.nombre_marca} está inactiva y no se pueden crear modelos`
       );
     }
-
-    
-         
          const marca = this.modeloRepository.create(createModeloDto);
          await this.modeloRepository.save(marca)
    
@@ -44,9 +41,7 @@ export class ModeloService {
    
        } catch (error) {
          this.manejoDBExcepciones(error);
-         
-       }
-   
+       }   
      }
 
      

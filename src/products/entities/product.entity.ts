@@ -1,6 +1,7 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ProductImage } from "./";
 import { User } from "src/auth/entities/user.entity";
+import { Proveedor } from "src/proveedor/entities/proveedor.entity";
 
 
 @Entity({name:'producto_motos '})
@@ -52,7 +53,7 @@ export class Product {
 
     @Column({
         type: 'int',
-        default: 0
+        default: 1
     })
     cantidad_moto: number;
 
@@ -93,6 +94,7 @@ export class Product {
 
     @Column({
         type: 'text',
+        default: "2x2"
     })
     traccion: string; //2x2, 2x1
 
@@ -134,6 +136,19 @@ export class Product {
     )
     user:User
 
+     // Columna de clave foránea
+      @Column({ name: 'id_proveedor' ,
+            nullable: true,
+      })
+      idProveedor: number;
+    
+      // Relación: Muchos modelos pertenecen a una marca
+      @ManyToOne(() => Proveedor, (product) => product.productos, {
+        onDelete: 'CASCADE',// Si se elimina el autor, se eliminan sus libros
+        onUpdate: 'CASCADE'
+      })
+      @JoinColumn({ name: 'id_proveedor' })
+      productos: Proveedor;
 
     // por si no viene un campo para la insercion de base de datos
     @BeforeInsert()
@@ -165,6 +180,15 @@ export class Product {
             this.fecha_ingreso = new Date();
         }
         this.fecha_ingreso = this.fecha_ingreso;
+    } 
+
+    // para fecha de venta
+    @BeforeInsert()
+    verificarInsercion_fecha_venta() {
+        if (!this.fecha_venta) {
+            this.fecha_venta = new Date();
+        }
+        this.fecha_venta = this.fecha_venta;
     } 
 
     // para descripcion

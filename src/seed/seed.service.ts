@@ -4,6 +4,7 @@ import { initialData } from './data/seed-data';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/auth/entities/user.entity';
 import { Repository } from 'typeorm';
+import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 
 @Injectable()
 export class SeedService {
@@ -12,7 +13,10 @@ export class SeedService {
     private readonly productsService: ProductsService,
 
     @InjectRepository(User)
-    private readonly userRepository:Repository<User>
+    private readonly userRepository:Repository<User>,
+
+    @InjectRepository(Proveedor)
+    private readonly proveedorRepository:Repository<Proveedor>
   ) {}
   
   async runSeed() {
@@ -64,7 +68,7 @@ export class SeedService {
     const insertPromises: Promise<any>[] = [];
 
     seedProducts.forEach( product => {
-      insertPromises.push( this.productsService.create(product, user));
+      // insertPromises.push( this.productsService.create(product, user, Proveedor));
     });
 
     
