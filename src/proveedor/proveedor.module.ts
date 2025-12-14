@@ -10,6 +10,7 @@ import { Proveedor } from './entities/proveedor.entity';
   imports:[
     TypeOrmModule.forFeature([Proveedor]) // configuaracion 
   ],
-  exports:[TypeOrmModule] //7configuraciion 
+  exports:[TypeOrmModule,ProveedorService] //7configuraciion 
 })
 export class ProveedorModule {}
+

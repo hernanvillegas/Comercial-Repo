@@ -18,6 +18,9 @@ import { AuthModule } from './auth/auth.module';
 import { MarcaModule } from './marca/marca.module';
 import { ModeloModule } from './modelo/modelo.module';
 import { ProveedorModule } from './proveedor/proveedor.module';
+import { HistorialClienteModule } from './historial_cliente/historial_cliente.module';
+import { GaranteModule } from './garante/garante.module';
+import { ClienteModule } from './cliente/cliente.module';
 
 @Module({
   imports: [
@@ -54,7 +57,13 @@ import { ProveedorModule } from './proveedor/proveedor.module';
 
     ModeloModule,
 
-    ProveedorModule
+    ProveedorModule,
+
+    HistorialClienteModule,
+
+    GaranteModule,
+
+    ClienteModule
   ],
   controllers: [AppController],
   providers: [AppService],

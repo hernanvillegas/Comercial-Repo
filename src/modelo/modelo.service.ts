@@ -10,41 +10,41 @@ import { Marca } from 'src/marca/entities/marca.entity';
 export class ModeloService {
 
   constructor(
-  
-      @InjectRepository(Modelo) private readonly  modeloRepository: Repository<Modelo>,
-      @InjectRepository(Marca)  private marcaRepository: Repository<Marca>,
-    ){}
 
-    
+    @InjectRepository(Modelo) private readonly modeloRepository: Repository<Modelo>,
+    @InjectRepository(Marca) private marcaRepository: Repository<Marca>,
+  ) { }
+
+
   // async create(createModeloDto: CreateModeloDto) {
-   async create(createModeloDto: CreateModeloDto) {
-    
-    // Verificar si la marca existe
-    const marcaExiste = await this.marcaRepository.findOne({where: { id_marca: createModeloDto.idMarca } });
-   
-    try {
-        if (!marcaExiste) {
-      throw new NotFoundException(
-        `La marca con ID ${createModeloDto.idMarca} no existe`
-      );
-    }
-    // Verificar si la marca está activa (opcional pero recomendado)
-    if (!marcaExiste.activo) {
-      throw new BadRequestException(
-        `La marca ${marcaExiste.nombre_marca} está inactiva y no se pueden crear modelos`
-      );
-    }
-         const marca = this.modeloRepository.create(createModeloDto);
-         await this.modeloRepository.save(marca)
-   
-         return marca;
-   
-       } catch (error) {
-         this.manejoDBExcepciones(error);
-       }   
-     }
+  async create(createModeloDto: CreateModeloDto) {
 
-     
+    // Verificar si la marca existe
+    const marcaExiste = await this.marcaRepository.findOne({ where: { id_marca: createModeloDto.idMarca } });
+
+    try {
+      if (!marcaExiste) {
+        throw new NotFoundException(
+          `La marca con ID ${createModeloDto.idMarca} no existe`
+        );
+      }
+      // Verificar si la marca está activa (opcional pero recomendado)
+      if (!marcaExiste.activo) {
+        throw new BadRequestException(
+          `La marca ${marcaExiste.nombre_marca} está inactiva y no se pueden crear modelos`
+        );
+      }
+      const marca = this.modeloRepository.create(createModeloDto);
+      await this.modeloRepository.save(marca)
+
+      return marca;
+
+    } catch (error) {
+      this.manejoDBExcepciones(error);
+    }
+  }
+
+
 
   // Obtener todos los modelos con información de marca
   async findAll(): Promise<Modelo[]> {
@@ -108,12 +108,12 @@ export class ModeloService {
     await this.modeloRepository.remove(modelo);
   }
 
-  private manejoDBExcepciones(error:any):never{
-        if(error.code === '23505')
-          throw new BadRequestException(error.detail);
-    
-        
-        console.log(error)
-        throw new InternalServerErrorException('Error inesperado, verifica los registros del Servidor');
-      }
+  private manejoDBExcepciones(error: any): never {
+    if (error.code === '23505')
+      throw new BadRequestException(error.detail);
+
+
+    console.log(error)
+    throw new InternalServerErrorException('Error inesperado, verifica los registros del Servidor');
+  }
 }

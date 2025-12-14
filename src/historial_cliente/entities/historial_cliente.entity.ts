@@ -1,0 +1,47 @@
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+@Entity('historial')
+export class HistorialCliente {
+    
+    
+        @PrimaryGeneratedColumn()
+        id_historial: number;
+
+        @Column({
+            name: 'fecha_compra',
+            type: 'timestamp',
+            default: () => 'CURRENT_TIMESTAMP'
+        })
+        fecha_compra:Date;
+
+        @Column({
+            name: 'fecha_ultima_compra',
+            type: 'timestamp',
+            default: () => 'CURRENT_TIMESTAMP'
+        })
+        fecha_ultima_compra:Date;
+
+        @Column({
+            type: 'int',
+            name:'total_compras',
+            nullable: true,
+            default:1
+         })
+        total_compras:number;
+
+        // @Column('bool', {
+        //     name:'cumplido',
+        //     default: true
+        // })
+        // cumplido: boolean;
+
+       @Column({
+            type: 'text',
+            name:'observaciones',
+            nullable: true,
+        })
+        observaciones:string;
+    
+        
+        
+}

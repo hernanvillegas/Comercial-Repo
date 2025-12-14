@@ -8,6 +8,7 @@ import { PaginationDto } from 'src/common/dto/paginacion.dto';
 import {validate as isUUID} from 'uuid';
 import { ProductImage, Product } from './entities';
 import { User } from 'src/auth/entities/user.entity';
+import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 @Injectable()
 
 export class ProductsService {
@@ -21,11 +22,22 @@ export class ProductsService {
     @InjectRepository(ProductImage)
     private readonly productImageRepository:Repository<ProductImage>,
 
+    @InjectRepository(Proveedor)  private proveedorRepository: Repository<Proveedor>, // ********************
+
     private readonly dataSource : DataSource,
   ){}
 
   async create(createProductDto: CreateProductDto,user:User) {
+
+    const proveedorExiste = await this.proveedorRepository.findOne({where: { id_proveedor: createProductDto.idProveedor } });//***************** */
+
     try {
+      if (!proveedorExiste) { //---------------------
+        throw new NotFoundException(`El proveedor con ID ${createProductDto.idProveedor} no existe`);
+      }//------------------
+      if (!proveedorExiste.activo) {
+        throw new BadRequestException(`El proveedor ${proveedorExiste.id_proveedor} está inactivo y no se pueden crear productos`);
+      }//------------------
       const {images=[],...productDetails}=createProductDto;
       const product = this.productRepository.create({
         ...productDetails,
@@ -144,14 +156,21 @@ export class ProductsService {
   }
 
 
-  private manejoDBExcepciones(error:any){
-    if(error.code === '23505')
-      throw new BadRequestException(error.detail);
+  private manejoDBExcepciones(error: any) {
+  
+  if (error.code === '23505')
+    throw new BadRequestException(error.detail);
 
-    this.logger.error(error)
-    // console.log(error)
-    throw new InternalServerErrorException('Error inesperado, verifica los registros del Servidor');
-  }
+  if (error.status === 400)
+    throw new BadRequestException(error.message || 'Solicitud incorrecta');
+
+  if (error.status === 404)
+    throw new NotFoundException(error.message || 'Recurso no encontrado');
+
+  this.logger.error(error);
+  throw new InternalServerErrorException('Error inesperado, verifica los registros del Servidor');
+  
+}
 
 
   // ejecutar solo cuando haya una emergencia--- elimina toda la BD

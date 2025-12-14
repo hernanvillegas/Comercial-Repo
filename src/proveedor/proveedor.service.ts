@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateProveedorDto } from './dto/create-proveedor.dto';
 import { UpdateProveedorDto } from './dto/update-proveedor.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,8 @@ import { Proveedor } from './entities/proveedor.entity';
 
 @Injectable()
 export class ProveedorService {
+
+  private readonly logger = new Logger('ProveedoresService');
 
   constructor(
     @InjectRepository(Proveedor)
@@ -27,28 +29,61 @@ export class ProveedorService {
     }
   }
 
-  findAll() {
-    return `This action returns all proveedor`;
+
+  async findAll() {
+    try {
+      return await this.proveedorRepository.find();
+    } catch (error) {
+      this.manejoExcepciones(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} proveedor`;
+  async findOne(id: number) {
+    const proveedor = await this.proveedorRepository.findOneBy({ id_proveedor: id });
+    
+    if (!proveedor) {
+      throw new NotFoundException(`Proveedor con id ${id} no encontrado`);
+    }
+    
+    return proveedor;
   }
 
-  update(id: number, updateProveedorDto: UpdateProveedorDto) {
-    return `This action updates a #${id} proveedor`;
+ 
+  async update(id: number, updateProveedorDto: UpdateProveedorDto) {
+    const proveedor = await this.proveedorRepository.preload({
+      id_proveedor: id,
+      ...updateProveedorDto,
+    });
+
+    if (!proveedor) {
+      throw new NotFoundException(`Proveedor con id ${id} no encontrado`);
+    }
+
+    try {
+      await this.proveedorRepository.save(proveedor);
+      return proveedor;
+    } catch (error) {
+      this.manejoExcepciones(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} proveedor`;
+  async remove(id: number) {
+    const proveedor = await this.findOne(id);
+    await this.proveedorRepository.remove(proveedor);
+    return { message: `Proveedor con id ${id} eliminado exitosamente` };
   }
-
-  private manejoExcepciones(error :any):never{
-    if(error.code === '23505')
+  
+  private manejoExcepciones(error: any):never {
+    if (error.code === '23505')
       throw new BadRequestException(error.detail);
 
-    console.log(error)
+    if (error.status === 400)
+      throw new BadRequestException(error.message || 'Solicitud incorrecta');
 
-    throw new InternalServerErrorException('por favor verifica los datos en el servidor');
+    if (error.status === 404)
+      throw new NotFoundException(error.message || 'Recurso no encontrado');
+
+    this.logger.error(error);
+    throw new InternalServerErrorException('Error inesperado, verifica los registros del Servidor');
   }
 }
