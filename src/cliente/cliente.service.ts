@@ -1,19 +1,23 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, Patch } from '@nestjs/common';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cliente } from './entities/cliente.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { Garante } from 'src/garante/entities/garante.entity';
 
 @Injectable()
 export class ClienteService {
-  
- constructor(
+
+  constructor(
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
-  ) {}
+    @InjectRepository(Garante)
+    private readonly garanteRepository: Repository<Garante>,
+  ) { }
 
   async create(createClienteDto: CreateClienteDto): Promise<Cliente> {
+
     // Verificar si el CI ya existe
     const existingClienteByCI = await this.clienteRepository.findOne({
       where: { ci_cliente: createClienteDto.ci_cliente }
@@ -57,45 +61,125 @@ export class ClienteService {
     return await this.clienteRepository.save(cliente);
   }
 
+  // con la tabla garante // Asignar garante a un cliente existente*****************************
+  @Patch(':id/garantes')
+  async asignarGarantes(clienteId: number, garanteIds: number[]): Promise<Cliente> {
+    const cliente = await this.clienteRepository.findOne({
+      where: { id_cliente: clienteId },
+      relations: ['garantes'],
+    });
+
+    if (!cliente) {
+      throw new NotFoundException(`El Cliente con ID ${clienteId} no encontrado`);
+    }
+
+    // ***********************************************************
+    // Validar que los cursos existan
+    if (!garanteIds || garanteIds.length === 0) {
+      throw new BadRequestException('Debe proporcionar al menos un ID de curso');
+    }
+     // Validar que los cursos existan y estén activos
+    await this.validarGaranteExistenYActivos(garanteIds);
+
+        
+    const garantes = await this.garanteRepository.findByIds(garanteIds);
+    cliente.garantes = [...cliente.garantes, ...garantes];
+    return this.clienteRepository.save(cliente);
+  }
+  // hasta aqui *****************************************
+
+  private async validarGaranteExistenYActivos(garanteIds: number[]): Promise<void> {
+    // Buscar todos los garantes (activos e inactivos)
+    const todosGarantes = await this.garanteRepository.find({
+      where: { id_garante: In(garanteIds) },
+    });
+
+    // 1. Verificar que todos los IDs existan
+    if (todosGarantes.length !== garanteIds.length) {
+      const garantesEncontradosIds = todosGarantes.map(c => c.id_garante);
+      const garantesNoEncontrados = garanteIds.filter(id => !garantesEncontradosIds.includes(id));
+      
+      throw new NotFoundException(
+        `Los siguientes Garantes no existen: ${garantesNoEncontrados.join(', ')}`
+      )
+      }
+    
+      // 2. Verificar que TODOS estén ACTIVOS
+    const garantesInactivos = todosGarantes.filter(garante => garante.verificado === false);
+    
+    console.log(' Garantes inactivos encontrados:', garantesInactivos);
+
+    if (garantesInactivos.length > 0) {
+      const idsInactivos = garantesInactivos
+        .map(c => `id_garante: ${c.id_garante}, nombre_garante: ${c.nombre_garante}, verificado: ${c.verificado}`)
+        .join(' | ');
+      
+      console.log('🚫 BLOQUEANDO: Hay Garantes inactivos');
+      
+      throw new BadRequestException(
+        `❌ No se pueden asignar los siguientes Garantes porque están inactivos: ${idsInactivos}`
+      );
+    }
+    
+    
+    }
+    
+
   async findAll(): Promise<Cliente[]> {
     return await this.clienteRepository.find({
+      relations: ['garantes'],
       order: { fecha_registro: 'DESC' }
     });
   }
 
-  async findOne(id: number): Promise<Cliente> {
-    const cliente = await this.clienteRepository.findOne({ 
-      where: { id_cliente: id } 
+  // PARA MOSTRAR LOS GARANTES DE CLIENTES
+  async findOne_cli_gar(id_cliente: number): Promise<Cliente> {
+    const estudiante = await this.clienteRepository.findOne({
+      where: { id_cliente },
+      relations: ['garantes'],
     });
-    
+
+    if (!estudiante) {
+      throw new NotFoundException(`Cliente con ID ${id_cliente} no fue encontrado`);
+    }
+
+    return estudiante;
+  }
+
+  async findOne(id: number): Promise<Cliente> {
+    const cliente = await this.clienteRepository.findOne({
+      where: { id_cliente: id }
+    });
+
     if (!cliente) {
       throw new NotFoundException(`Cliente con ID ${id} no encontrado`);
     }
-    
+
     return cliente;
+    
   }
 
   async findByCI(ci: number): Promise<Cliente> {
-    const cliente = await this.clienteRepository.findOne({ 
-      where: { ci_cliente: ci } 
+    const cliente = await this.clienteRepository.findOne({
+      where: { ci_cliente: ci }
     });
-    
+
     if (!cliente) {
       throw new NotFoundException(`Cliente con CI ${ci} no encontrado`);
     }
-    
+
     return cliente;
   }
 
   async findByEmail(email: string): Promise<Cliente> {
-    const cliente = await this.clienteRepository.findOne({ 
-      where: { email } 
+    const cliente = await this.clienteRepository.findOne({
+      where: { email }
     });
-    
+
     if (!cliente) {
       throw new NotFoundException(`Cliente con email ${email} no encontrado`);
     }
-    
+
     return cliente;
   }
 
@@ -196,11 +280,11 @@ export class ClienteService {
     const nacimiento = new Date(fechaNacimiento);
     let edad = hoy.getFullYear() - nacimiento.getFullYear();
     const mes = hoy.getMonth() - nacimiento.getMonth();
-    
+
     if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
       edad--;
     }
-    
+
     return edad;
   }
 

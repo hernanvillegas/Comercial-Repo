@@ -138,7 +138,8 @@ export class Product {
 
      // Columna de clave foránea
       @Column({ name: 'id_proveedor' ,
-            nullable: true,
+            nullable: true, // CAMBIAR A FALSE, ES LO PEORRRRRR
+            
       })
       idProveedor: number;
     

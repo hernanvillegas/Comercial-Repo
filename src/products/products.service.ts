@@ -22,7 +22,7 @@ export class ProductsService {
     @InjectRepository(ProductImage)
     private readonly productImageRepository:Repository<ProductImage>,
 
-    @InjectRepository(Proveedor)  private proveedorRepository: Repository<Proveedor>, // ********************
+    @InjectRepository(Proveedor)  private readonly proveedorRepository: Repository<Proveedor>, // ********************
 
     private readonly dataSource : DataSource,
   ){}

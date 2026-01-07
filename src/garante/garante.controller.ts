@@ -2,21 +2,34 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus
 import { GaranteService } from './garante.service';
 import { CreateGaranteDto } from './dto/create-garante.dto';
 import { UpdateGaranteDto } from './dto/update-garante.dto';
+import { Garante } from './entities/garante.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Controller('garante')
 export class GaranteController {
-  constructor(private readonly garanteService: GaranteService) {}
-
+  constructor(private readonly garanteService: GaranteService,
+    @InjectRepository(Garante)
+    private garanteRepository: Repository<Garante>
+  ) {}
+  
+    
 @Post('register')
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createGaranteDto: CreateGaranteDto) {
     return this.garanteService.create(createGaranteDto);
   }
 
+  // @Get()
+  // findAll() {
+  //   return this.garanteService.findAll();
+  // }
+
   @Get()
   findAll() {
-    return this.garanteService.findAll();
+    return this.garanteRepository.find({ relations: ['clientes'] });
   }
+
 
   @Get('verificados')
   findVerificados() {
@@ -56,4 +69,6 @@ export class GaranteController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.garanteService.remove(id);
   }
-}
+  }
+
+  

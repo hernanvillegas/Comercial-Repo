@@ -14,9 +14,22 @@ export class ClienteController {
     return this.clientesService.create(createClienteDto);
   }
 
+  @Patch(':id/garantes')
+  asignarGarantes(
+    @Param('id') id: number,
+    @Body() body: { garanteIds: number[] },
+  ) {
+    return this.clientesService.asignarGarantes(id, body.garanteIds);
+  }
+
   @Get()
   findAll() {
     return this.clientesService.findAll();
+  }
+
+  @Get(':id/cli_gar')
+  findOne_cli_gar(@Param('id') id: number) {
+    return this.clientesService.findOne_cli_gar(id);
   }
 
   @Get('verificados')

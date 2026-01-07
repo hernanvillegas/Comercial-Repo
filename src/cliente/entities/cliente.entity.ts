@@ -1,4 +1,6 @@
-import { BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Garante } from "src/garante/entities/garante.entity";
+import { HistorialCliente } from "src/historial_cliente/entities/historial_cliente.entity";
+import { BeforeUpdate, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('clientes')
 export class Cliente {
@@ -72,7 +74,7 @@ export class Cliente {
     })
     provincia: string;
 
-    
+
     @Column({
         type: 'text',
         name: 'direccion',
@@ -81,7 +83,7 @@ export class Cliente {
     })
     direccion: string;
 
-    
+
     @Column({
         type: 'text',
         name: 'ocupacion',
@@ -98,11 +100,11 @@ export class Cliente {
     })
     ingreso_mensual: number;
 
-    
+
     @Column('bool', {
         default: true
     })
-    verificado: boolean; 
+    verificado: boolean;
 
     @Column({
         name: 'fecha_registro',
@@ -112,16 +114,47 @@ export class Cliente {
     })
     fecha_registro: Date;
 
+    // LLAVE FORANEA PARA LA TABLA HISTORIAL CLIENTE
+
+    @OneToMany(() => HistorialCliente, (cliente) => cliente.historiales,
+        {
+            cascade: true, // Permite crear libros al crear un autor
+            eager: false // No carga automáticamente los libros (usar relations en queries)
+        }
+    )
+    historiales: HistorialCliente[];
+
+    //  RELACION CLIENTE GARANTE (est)
+
+
+    @ManyToMany(() => Garante, (garante) => garante.clientes)
+    @JoinTable({
+        name:'cliente-garante',
+        joinColumn:{
+            name:'cliente_fk',
+        },
+        inverseJoinColumn:{
+            name:'garante_fk',
+        },
+    }) // Solo se coloca en UNO de los lados de la relación
+    garantes: Garante[];
+
+//     @ManyToMany(() => Curso, (curso) => curso.estudiantes)
+//   @JoinTable() // Solo se coloca en UNO de los lados de la relación
+//   cursos: Curso[];
+
+
+
 
     @BeforeUpdate()
-        vacualizacion_f_registro() {
-           if (this.fecha_registro) {
-                this.fecha_registro = this.fecha_registro;
-            }
-                
+    vacualizacion_f_registro() {
+        if (this.fecha_registro) {
+            this.fecha_registro = this.fecha_registro;
         }
 
-    
+    }
+
+
 }
 
 

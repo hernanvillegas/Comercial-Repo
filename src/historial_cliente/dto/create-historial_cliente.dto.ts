@@ -1,8 +1,8 @@
-import { IsBoolean, IsDateString, IsInt, IsOptional, IsString, Min } from "class-validator";
+import { IsBoolean, IsDateString, IsInt, IsOptional, IsPositive, IsString, Min } from "class-validator";
 
 
 export class CreateHistorialClienteDto {
-  
+
   @IsDateString()
   @IsOptional()
   fecha_compra?: Date;
@@ -23,4 +23,10 @@ export class CreateHistorialClienteDto {
   @IsString()
   @IsOptional()
   observaciones?: string;
+
+  // para la llave foranea
+  @IsInt()
+  @IsPositive()
+  @IsOptional()
+  idClienteFk: number;
 }

@@ -5,7 +5,7 @@ import { UpdateHistorialClienteDto } from './dto/update-historial_cliente.dto';
 
 @Controller('historial-cliente')
 export class HistorialClienteController {
-  constructor(private readonly historialClienteService: HistorialClienteService) {}
+  constructor(private readonly historialClienteService: HistorialClienteService) { }
 
 
   @Post('register')
@@ -29,6 +29,11 @@ export class HistorialClienteController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.historialClienteService.findOne(id);
+  }
+
+  @Get(':userId/relations')
+  async findActiveProductsByUserId(@Param('userId') userId: string) {
+    return await this.historialClienteService.findActiveProductsByUserId(+userId);
   }
 
   @Patch(':id')
