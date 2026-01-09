@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, ParseIntPipe, Query, Put } from '@nestjs/common';
 import { ClienteService } from './cliente.service';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
@@ -21,6 +21,17 @@ export class ClienteController {
   ) {
     return this.clientesService.asignarGarantes(id, body.garanteIds);
   }
+
+  //para actualizar cursos
+  @Patch(':id/garantes_update')
+  actualizarGarante(
+    @Param('id') id: number,
+    @Body() body: { garanteIds: number[] },
+  ) {
+    return this.clientesService.actualizarGarante(id, body.garanteIds);
+  }
+  
+
 
   @Get()
   findAll() {
@@ -62,6 +73,7 @@ export class ClienteController {
     return this.clientesService.findOne(id);
   }
 
+  
 
   @Patch(':id')
   update(

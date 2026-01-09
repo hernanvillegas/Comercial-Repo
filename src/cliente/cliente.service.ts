@@ -107,24 +107,52 @@ export class ClienteService {
       // 2. Verificar que TODOS estén ACTIVOS
     const garantesInactivos = todosGarantes.filter(garante => garante.verificado === false);
     
-    console.log(' Garantes inactivos encontrados:', garantesInactivos);
+    // console.log(' Garantes inactivos encontrados:', garantesInactivos);
 
     if (garantesInactivos.length > 0) {
       const idsInactivos = garantesInactivos
         .map(c => `id_garante: ${c.id_garante}, nombre_garante: ${c.nombre_garante}, verificado: ${c.verificado}`)
         .join(' | ');
       
-      console.log('🚫 BLOQUEANDO: Hay Garantes inactivos');
+      // console.log('🚫 BLOQUEANDO: Hay Garantes inactivos');
       
       throw new BadRequestException(
         `❌ No se pueden asignar los siguientes Garantes porque están inactivos: ${idsInactivos}`
       );
     }
-    
-    
     }
-    
 
+    // Reemplazar cursos
+  // estudiante.service.ts
+
+async actualizarGarante(clienteId: number, garanteIds: number[]): Promise<Cliente> {
+  const cliente = await this.clienteRepository.findOne({
+    where: { id_cliente: clienteId },
+    relations: ['garantes'],
+  });
+
+  if (!cliente) {
+    throw new NotFoundException(`Cliente con ID ${clienteId} no encontrado`);
+  }
+
+  // Validar que los cursos existan y estén activos
+  await this.validarGaranteExistenYActivos(garanteIds);
+
+  // Buscar los nuevos cursos
+  const garantes = await this.garanteRepository.find({
+    where: { 
+      id_garante: In(garanteIds),
+      verificado: true 
+    },
+  });
+
+  // REEMPLAZAR todos los cursos (no agregar)
+  cliente.garantes = garantes;
+
+  return this.clienteRepository.save(cliente);
+}
+  
+    
   async findAll(): Promise<Cliente[]> {
     return await this.clienteRepository.find({
       relations: ['garantes'],

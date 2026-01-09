@@ -21,6 +21,9 @@ import { ProveedorModule } from './proveedor/proveedor.module';
 import { HistorialClienteModule } from './historial_cliente/historial_cliente.module';
 import { GaranteModule } from './garante/garante.module';
 import { ClienteModule } from './cliente/cliente.module';
+import { VentasModule } from './ventas/ventas.module';
+import { CuotaCreditoModule } from './cuota-credito/cuota-credito.module';
+import { MovimientoCajaModule } from './movimiento-caja/movimiento-caja.module';
 
 @Module({
   imports: [
@@ -63,7 +66,13 @@ import { ClienteModule } from './cliente/cliente.module';
 
     GaranteModule,
 
-    ClienteModule
+    ClienteModule,
+
+    VentasModule,
+
+    CuotaCreditoModule,
+
+    MovimientoCajaModule
   ],
   controllers: [AppController],
   providers: [AppService],

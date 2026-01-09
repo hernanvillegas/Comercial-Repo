@@ -1,6 +1,7 @@
 import { Garante } from "src/garante/entities/garante.entity";
 import { HistorialCliente } from "src/historial_cliente/entities/historial_cliente.entity";
-import { BeforeUpdate, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Venta } from "src/ventas/entities/venta.entity";
+import { BeforeUpdate, Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('clientes')
 export class Cliente {
@@ -114,6 +115,23 @@ export class Cliente {
     })
     fecha_registro: Date;
 
+
+    /////////////////////////////////// ultima modificacion
+    @OneToMany(() => Venta, (venta) => venta.cliente,
+        {
+            cascade: true, // Permite crear libros al crear un autor
+            eager: false // No carga automáticamente los libros (usar relations en queries)
+        })
+    ventas: Venta[];
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    ///////////////////////////////////////
+
     // LLAVE FORANEA PARA LA TABLA HISTORIAL CLIENTE
 
     @OneToMany(() => HistorialCliente, (cliente) => cliente.historiales,
@@ -129,19 +147,19 @@ export class Cliente {
 
     @ManyToMany(() => Garante, (garante) => garante.clientes)
     @JoinTable({
-        name:'cliente-garante',
-        joinColumn:{
-            name:'cliente_fk',
+        name: 'cliente-garante',
+        joinColumn: {
+            name: 'cliente_fk',
         },
-        inverseJoinColumn:{
-            name:'garante_fk',
+        inverseJoinColumn: {
+            name: 'garante_fk',
         },
     }) // Solo se coloca en UNO de los lados de la relación
     garantes: Garante[];
 
-//     @ManyToMany(() => Curso, (curso) => curso.estudiantes)
-//   @JoinTable() // Solo se coloca en UNO de los lados de la relación
-//   cursos: Curso[];
+    //     @ManyToMany(() => Curso, (curso) => curso.estudiantes)
+    //   @JoinTable() // Solo se coloca en UNO de los lados de la relación
+    //   cursos: Curso[];
 
 
 

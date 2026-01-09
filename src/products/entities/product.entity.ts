@@ -1,15 +1,16 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProductImage } from "./";
 import { User } from "src/auth/entities/user.entity";
 import { Proveedor } from "src/proveedor/entities/proveedor.entity";
+import { Venta } from "src/ventas/entities/venta.entity";
 
 
-@Entity({name:'producto_motos '})
+@Entity({ name: 'producto_motos ' })
 export class Product {
 
     @PrimaryGeneratedColumn('uuid')
     id: string;
-    
+
     @Column({
         type: 'text',
         unique: true,
@@ -108,48 +109,69 @@ export class Product {
         unique: true,
     })
     slug: string;
-    
+
     //  ETIQUETAS PARA UNA BUENA BUSQUEDA
-    @Column('text',{
-        array:true,
-        default:[]
+    @Column('text', {
+        array: true,
+        default: []
     })
-    etiquetas:string[];
+    etiquetas: string[];
+
+
+    /////////////////////////////// ultia modificacion
+    @OneToMany(() => Venta, (venta) => venta.producto,
+
+        {
+            cascade: true, // Permite crear libros al crear un autor
+            eager: false // No carga automáticamente los libros (usar relations en queries)
+        }
+    )
+    ventas: Venta[];
+
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    ///////////////////////////////////////////////
 
 
 
     //FALTA RELACION CON PROVEEDORES Y CON MODELOS
     //FALTAN LAS IMAGENES 
     @OneToMany(
-        ()=>ProductImage,
-        (productImage)=>productImage.product,
-        {cascade:true, eager:true}
+        () => ProductImage,
+        (productImage) => productImage.product,
+        { cascade: true, eager: true }
     )
-    images?:ProductImage[];
+    images?: ProductImage[];
 
 
 
     @ManyToOne(
-        ()=>User,
-        (user)=>user.product,
-        {eager:true}  //para ver que usuario creo el producto
+        () => User,
+        (user) => user.product,
+        { eager: true }  //para ver que usuario creo el producto
     )
-    user:User
+    user: User
 
-     // Columna de clave foránea
-      @Column({ name: 'id_proveedor' ,
-            nullable: true, // CAMBIAR A FALSE, ES LO PEORRRRRR
-            
-      })
-      idProveedor: number;
-    
-      // Relación: Muchos modelos pertenecen a una marca
-      @ManyToOne(() => Proveedor, (product) => product.productos, {
+    // Columna de clave foránea
+    @Column({
+        name: 'id_proveedor',
+        nullable: true, // CAMBIAR A FALSE, ES LO PEORRRRRR
+
+    })
+    idProveedor: number;
+
+    // Relación: Muchos modelos pertenecen a una marca
+    @ManyToOne(() => Proveedor, (product) => product.productos, {
         onDelete: 'CASCADE',// Si se elimina el autor, se eliminan sus libros
         onUpdate: 'CASCADE'
-      })
-      @JoinColumn({ name: 'id_proveedor' })
-      productos: Proveedor;
+    })
+    @JoinColumn({ name: 'id_proveedor' })
+    productos: Proveedor;
 
     // por si no viene un campo para la insercion de base de datos
     @BeforeInsert()
@@ -165,10 +187,10 @@ export class Product {
 
     @BeforeUpdate()
     verificarActualizacion_Slug() {
-       if (!this.slug) {
+        if (!this.slug) {
             this.slug = this.titulo_moto;
         }
-            this.slug = this.titulo_moto
+        this.slug = this.titulo_moto
             .toLocaleLowerCase()
             .replaceAll(' ', '_')
             .replaceAll("'", '')
@@ -181,7 +203,7 @@ export class Product {
             this.fecha_ingreso = new Date();
         }
         this.fecha_ingreso = this.fecha_ingreso;
-    } 
+    }
 
     // para fecha de venta
     @BeforeInsert()
@@ -190,7 +212,7 @@ export class Product {
             this.fecha_venta = new Date();
         }
         this.fecha_venta = this.fecha_venta;
-    } 
+    }
 
     // para descripcion
 
@@ -203,7 +225,7 @@ export class Product {
         }
         this.descripcion = this.descripcion.toLocaleLowerCase()
     }
-} 
+}
 
 
 
