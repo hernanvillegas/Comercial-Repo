@@ -89,9 +89,14 @@ export class Product {
     fecha_venta: Date;
 
     @Column({
+        type: 'boolean',
+    })
+    disponible: boolean;
+
+    @Column({
         type: 'text',
     })
-    genero_moto: string; //moto de varon o mujer UNISEX
+    gender: string; //moto de varon o mujer UNISEX
 
     @Column({
         type: 'text',

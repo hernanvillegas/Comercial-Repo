@@ -9,6 +9,8 @@ import {validate as isUUID} from 'uuid';
 import { ProductImage, Product } from './entities';
 import { User } from 'src/auth/entities/user.entity';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
+
+
 @Injectable()
 
 export class ProductsService {
@@ -51,24 +53,55 @@ export class ProductsService {
       this.manejoDBExcepciones(error);
     }
   }
+  ////////////////////////////////
+      async findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0, gender = '' } = paginationDto;
 
-  async findAll(paginationDto:PaginationDto) {
-
-    const {limit = 10 , offset = 0} = paginationDto;
-    const products= await this.productRepository.find({
+    const products = await this.productRepository.find({
       take: limit,
       skip: offset,
-
-      //realciones
-      relations:{
+      relations: {
         images: true,
-      }
-    }); 
-     return products.map(({images, ...rest})=>({
-      ...rest,
-      images:images?.map(img=>img.url)
-    }))
+      },
+      order: {
+        id: 'ASC',
+      },
+      where: gender ? [{ gender }, { gender: 'unisex' }] : {},
+    });
+
+    const totalProducts = await this.productRepository.count({
+      where: gender ? [{ gender }, { gender: 'unisex' }] : {},
+    });
+
+    return {
+      count: totalProducts,
+      pages: Math.ceil(totalProducts / limit),
+      products: products.map((product) => ({
+        ...product,
+        images: product.images?.map((img) => img.url),
+      })),
+    };
   }
+
+    ////
+
+  // async findAll(paginationDto:PaginationDto) {
+
+  //   const {limit = 10 , offset = 0} = paginationDto;
+  //   const products= await this.productRepository.find({
+  //     take: limit,
+  //     skip: offset,
+
+  //     //realciones
+  //     relations:{
+  //       images: true,
+  //     },
+  //   }); 
+  //    return products.map(({images, ...rest})=>({
+  //     ...rest,
+  //     images:images?.map(img=>img.url)
+  //   }))
+  // }
 
   async findOne(termino_busqueda: string) {
 

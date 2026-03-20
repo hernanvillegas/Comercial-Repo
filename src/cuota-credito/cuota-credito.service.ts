@@ -149,6 +149,13 @@ export class CuotaCreditoService {
 
   async calcularMora(id: string): Promise<CuotaCredito> {
     
+    // const cuota = await this.cuotasRepository.findOne({ ME SALVO LA VIDA
+    //   where: { idCuota: id },
+    //   relations: ['ventaFk']
+    // });
+    // if (!cuota) {
+    //   throw new NotFoundException(`Cuota con ID ${id} no encontrada`);
+    // }
     const cuota = await this.cuotasRepository.findOne({
       where: { idCuota: id },
       relations: ['ventaFk']

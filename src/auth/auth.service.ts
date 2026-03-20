@@ -36,9 +36,19 @@ export class AuthService {
       // delete user.password;
       delete (user as Partial<Pick<User, "password">>).password;
 
-      return {
-      ...user,
-      token: this.getJwtToken({id:user.id})
+    //   return {
+    //   ...user,
+    //   token: this.getJwtToken({id:user.id})
+    // };
+    // ✅ Retornar solo los campos que necesitas
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        roles: user.roles,
+      },
+      token: this.getJwtToken({id: user.id})
     };
     // todo regresa jwt
       
@@ -53,7 +63,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true, id: true} //! OJO!
+      select: { email: true, password: true, id: true, fullName: true, roles: true} //! OJO!
     });
 
     if ( !user ) 
@@ -61,11 +71,22 @@ export class AuthService {
       
     if ( !bcrypt.compareSync( password, user.password ) )
       throw new UnauthorizedException('Las credenciales no son válidas (password)');
-    console.log({user})
+    console.log({user})   
 
+    // return {
+    //   ...user,
+    //   token: this.getJwtToken({id:user.id})
+    // };
+
+    // ✅ Retornar solo los campos que necesitas
     return {
-      ...user,
-      token: this.getJwtToken({id:user.id})
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        roles: user.roles,
+      },
+      token: this.getJwtToken({id: user.id})
     };
     // retornar un jwt
   }
@@ -73,10 +94,22 @@ export class AuthService {
 
   async checkAuthStatus( user: User ){
 
+    // return {
+    //   ...user,
+    //   token: this.getJwtToken({ id: user.id })
+    // };
+    // ✅ Retornar solo los campos que necesitas
     return {
-      ...user,
-      token: this.getJwtToken({ id: user.id })
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        roles: user.roles,
+      },
+      token: this.getJwtToken({id: user.id})
     };
+
+    
 
   }
 

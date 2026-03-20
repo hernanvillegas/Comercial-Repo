@@ -13,16 +13,14 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
     constructor(
         @InjectRepository( User )
         private readonly userRepository: Repository<User>,
-
         configService: ConfigService
     ) {
-
         super({
             secretOrKey: configService.get('JWT_SECRET'),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         });
+        
     }
-
 
     async validate( payload: JwtPayload ): Promise<User> {
         
@@ -30,14 +28,14 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
 
         const user = await this.userRepository.findOneBy({ id });
 
-        if ( !user ) 
-            throw new UnauthorizedException('el Token no es valido')
+        if ( !user ) {
+            throw new UnauthorizedException('el Token no es valido');
+        }
             
-        if ( !user.isActive ) 
+        if ( !user.isActive ) {
             throw new UnauthorizedException('El usuario está inactivo, habla con un administrador');
-        
+        }
 
         return user;
     }
-
 }
