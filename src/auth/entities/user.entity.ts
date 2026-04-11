@@ -1,7 +1,10 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+    BeforeInsert, BeforeUpdate, Column, CreateDateColumn,
+    Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn
+} from 'typeorm';
 import { Product } from '../../products/entities';
+import { Producto } from 'src/producto/entities/producto.entity';
 import { Venta } from 'src/ventas/entities/venta.entity';
-
 
 @Entity('users')
 export class User {
@@ -9,145 +12,76 @@ export class User {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({
-        type: 'text',
-        name: 'nombre_user',
-        nullable: true,  // cambiar
-        unique: false
-    })
+    @Column({ type: 'text', name: 'nombre_user', nullable: true, unique: false })
     nombre_user: string;
 
-    @Column({
-        type: 'text',
-        name: 'apellido_user',
-        nullable: true, // cambiar
-        unique: false
-    })
+    @Column({ type: 'text', name: 'apellido_user', nullable: true, unique: false })
     apellido_user: string;
 
-
-    @Column({
-        type: 'int',
-        name: 'ci_user',
-        nullable: true,//cambiar
-        unique: true
-    })
+    @Column({ type: 'int', name: 'ci_user', nullable: true, unique: true })
     ci_user: number;
 
-    @Column({
-        type: 'text',
-        name: 'sucursal',
-        nullable: true,// cambiar
-        unique: false
-    })
+    @Column({ type: 'text', name: 'sucursal', nullable: true, unique: false })
     sucursal: string;
 
-    @Column({
-        name: 'fecha_nacimiento',
-        // type: 'timestamp',
-        type: 'date',
-        default: () => 'CURRENT_TIMESTAMP'
-    })
+    @Column({ name: 'fecha_nacimiento', type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     fecha_nacimiento: Date;
 
-
-    @Column({
-        type: 'int',
-        name: 'celular',
-        nullable: true, //cambiar
-        unique: true
-    })
+    @Column({ type: 'int', name: 'celular', nullable: true, unique: true })
     celular: number;
 
-    @Column({
-        type: 'text',
-        name: 'direccion',
-        nullable: true, // cambiar
-        unique: false
-    })
+    @Column({ type: 'text', name: 'direccion', nullable: true, unique: false })
     direccion: string;
 
-    @Column({
-        name: 'fecha_ingreso',
-        type: 'timestamp',
-        // type: 'date',
-        default: () => 'CURRENT_TIMESTAMP'
-    })
+    @Column({ name: 'fecha_ingreso', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     fecha_ingreso: Date;
 
-
-    @Column({
-        type: 'decimal',
-        name: 'ingreso_mensual',
-        nullable: true,//cambiar
-        unique: false
-    })
+    @Column({ type: 'decimal', name: 'ingreso_mensual', nullable: true, unique: false })
     ingreso_mensual: number;
 
-    /////////////////////////////////////////////////
-
-    @Column('text', {
-        unique: true
-    })
+    @Column('text', { unique: true })
     email: string;
 
-    @Column('text', {
-        select: false
-    })
+    @Column('text', { select: false })
     password: string;
 
     @Column('text')
     fullName: string;
 
-    @Column('bool', {
-        default: true
-    })
+    @Column('bool', { default: true })
     isActive: boolean;
 
-    @Column('text', {
-        array: true,
-        default: ['user']
-    })
+    @Column('text', { array: true, default: ['user'] })
     roles: string[];
-    ///////////////////////////////////// ultimas modificaciones
 
-    @OneToMany(() => Venta, (venta) => venta.empleados,
-        {
-            cascade: true, // Permite crear libros al crear un autor
-            eager: false // No carga automáticamente los libros (usar relations en queries)
-        }
-    )
+    // ── Ventas realizadas (sin cambios) ───────────────────────────────────
+    @OneToMany(() => Venta, (venta) => venta.empleados, {
+        cascade: true,
+        eager: false
+    })
     ventas: Venta[];
 
+    // ── Relación con producto_motos (sin cambios, no tocar) ───────────────
+    @OneToMany(() => Product, (product) => product.user)
+    product: Product;
+
+    // ── NUEVO: relación con tabla producto unificada ───────────────────────
+    @OneToMany(() => Producto, (producto) => producto.user)
+    productos: Producto[];
 
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
-    ///////////////////////////////////////////////
 
-
-
-    @OneToMany(
-        () => Product,
-        (product) => product.user
-    )
-    product: Product;
-
-
-    @BeforeInsert() //para que el email sea minuscula JWT
+    @BeforeInsert()
     checkFieldsBeforeInsert() {
         this.email = this.email.toLowerCase().trim();
     }
 
-    @BeforeUpdate() //para que el usuario se actualice en JWT
+    @BeforeUpdate()
     checkFieldsBeforeUpdate() {
         this.checkFieldsBeforeInsert();
     }
-
-
-
 }
-
-

@@ -1,9 +1,8 @@
 import { Cliente } from "src/cliente/entities/cliente.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('historial')
 export class HistorialCliente {
-
 
     @PrimaryGeneratedColumn()
     id_historial: number;
@@ -30,12 +29,6 @@ export class HistorialCliente {
     })
     total_compras: number;
 
-    // @Column('bool', {
-    //     name:'cumplido',
-    //     default: true
-    // })
-    // cumplido: boolean;
-
     @Column({
         type: 'text',
         name: 'observaciones',
@@ -43,28 +36,27 @@ export class HistorialCliente {
     })
     observaciones: string;
 
-    //LLAVE FORANEA PARA CLIENTES
+    // A  = excelente (nunca tuvo mora)
+    // B  = bueno     (mora menor a 30 días alguna vez)
+    // C  = regular   (mora entre 30 y 90 días)
+    // D  = malo      (mora mayor a 90 días o más de 2 cuotas vencidas a la vez)
+    // N  = nuevo     (solo contado, sin historial crediticio)
+    @Column({
+        type: 'varchar',
+        length: 1,
+        name: 'calificacion',
+        nullable: true,
+        default: 'N'
+    })
+    calificacion: string;
 
-    // LLAVE FORANEA PARA HISTORIAL
+    @Column({ name: 'id_clienteFk', nullable: false })
+    idClienteFk: number;
 
-    // Columna de clave foránea
-          @Column({ name: 'id_clienteFk' ,
-                nullable: false,
-          })
-          idClienteFk: number;
-
-
-          @ManyToOne(() => Cliente, (historial) => historial.historiales, {
-            onDelete: 'CASCADE',// Si se elimina el autor, se eliminan sus libros
-            onUpdate: 'CASCADE'
-          })
-          @JoinColumn({ name: 'id_clienteFk' })
-          historiales: Cliente;
-
-           
-
-    
-
-
-
+    @ManyToOne(() => Cliente, (historial) => historial.historiales, {
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+    @JoinColumn({ name: 'id_clienteFk' })
+    historiales: Cliente;
 }

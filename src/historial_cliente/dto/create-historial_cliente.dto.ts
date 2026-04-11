@@ -5,11 +5,11 @@ export class CreateHistorialClienteDto {
 
   @IsDateString()
   @IsOptional()
-  fecha_compra?: Date;
+  fecha_compra?: string;
 
   @IsDateString()
   @IsOptional()
-  fecha_ultima_compra?: Date;
+  fecha_ultima_compra?: string;
 
   @IsInt()
   @Min(1)

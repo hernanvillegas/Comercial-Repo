@@ -1,27 +1,33 @@
 import { User } from 'src/auth/entities/user.entity';
 import { Cliente } from 'src/cliente/entities/cliente.entity';
 import { CuotaCredito } from 'src/cuota-credito/entities/cuota-credito.entity';
+import { DetalleVenta } from 'src/detalle-venta/entities/detalle-venta.entity';
 import { MovimientoCaja } from 'src/movimiento-caja/entities/movimiento-caja.entity';
-import { Product } from 'src/products/entities';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-
+import { Pago } from 'src/pagos/entities/pago.entity';
+import {
+    Entity, PrimaryGeneratedColumn, Column,
+    CreateDateColumn, UpdateDateColumn,
+    ManyToOne, JoinColumn, OneToMany
+} from 'typeorm';
 
 @Entity('ventas')
 export class Venta {
+
     @PrimaryGeneratedColumn('uuid')
     idVenta: string;
 
-    @Column({ type: 'varchar',  unique: true, nullable: false })
+    @Column({ type: 'varchar', unique: true, nullable: false })
     numeroFactura: string;
 
-    @Column({ type: 'varchar',  nullable: false })
+    @Column({ type: 'varchar', nullable: false })
     tipoVenta: string;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: false })
     fechaVenta: Date;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
-    precioVenta: number;
+    // Subtotal antes de descuento global
+    @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+    subtotal: number;
 
     @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
     descuento: number;
@@ -33,14 +39,14 @@ export class Venta {
     estadoVenta: string;
 
     @Column({ type: 'int', nullable: true })
-    numeroCuotas: number;
+    numeroCuotas: number | null;
 
     @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-    entradaInicial: number;
-    // RELACIONES CON LA TABLA DE EMPLEADOS (USER)
+    entradaInicial: number | null;
 
+    // ── Relación con empleado ─────────────────────────────────────────────
     @ManyToOne(() => User, (empleado) => empleado.ventas, {
-        onDelete: 'CASCADE',// Si se elimina el autor, se eliminan sus libros
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
     @JoinColumn({ name: 'id_empleadoFk' })
@@ -48,70 +54,52 @@ export class Venta {
 
     @Column({ name: 'id_empleadoFk' })
     idEmpleadoFk: string;
-    //////////////////////////////////////////////////////////////////////////////
 
-    @ManyToOne(() => Product, (producto) => producto.ventas, {
-        onDelete: 'CASCADE',// Si se elimina el autor, se eliminan sus libros
+    // ── Relación con cliente ──────────────────────────────────────────────
+    @ManyToOne(() => Cliente, (cliente) => cliente.ventas, {
+        onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
-    @JoinColumn({ name: 'id_productFk' })
-    producto: Product;
-
-    @Column({ name: 'id_productFk' })
-    idProductoFk: string;
-
-    //////////////////////////////////////////////////////////////////////////
-
-    @ManyToOne(() => Cliente, (cliente) => cliente.ventas, {
-        onDelete: 'CASCADE',// Si se elimina el autor, se eliminan sus libros
-        onUpdate: 'CASCADE'
-    }
-
-    )
     @JoinColumn({ name: 'id_clienteFk' })
     cliente: Cliente;
 
     @Column({ name: 'id_clienteFk' })
     idClienteFk: number;
 
-    /////////////////////////////////////////////////////////////////////////
+    // ── NUEVO: líneas de la venta ─────────────────────────────────────────
+    @OneToMany(() => DetalleVenta, (detalle) => detalle.venta, {
+        cascade: true,
+        eager: false
+    })
+    detalles: DetalleVenta[];
 
-
-    @OneToMany(() => CuotaCredito, (cuota) => cuota.ventaFk,
-        {
-            cascade: true, // Permite crear libros al crear un autor
-            eager: false // No carga automáticamente los libros (usar relations en queries)
-        }
-
-    )
+    // ── Cuotas (sin cambios) ──────────────────────────────────────────────
+    @OneToMany(() => CuotaCredito, (cuota) => cuota.ventaFk, {
+        cascade: true,
+        eager: false
+    })
     cuotas: CuotaCredito[];
 
-    ///////////////////////////////////////
-
-
-    @OneToMany(() => MovimientoCaja, (movimiento) => movimiento.idVentaFk,
-        {
-            cascade: true, // Permite crear libros al crear un autor
-            eager: false // No carga automáticamente los libros (usar relations en queries)
-        }
-
-    )
+    // ── Movimientos de caja (sin cambios) ─────────────────────────────────
+    @OneToMany(() => MovimientoCaja, (movimiento) => movimiento.idventaFk, {
+        cascade: true,
+        eager: false
+    })
     movimientos: MovimientoCaja[];
 
-    ///////////////////////////////////////////////
-
-    @Column({
-        type: 'text',
-        unique: false,
-        nullable: true
+    // ── NUEVO: pagos registrados para esta venta ──────────────────────────
+    @OneToMany(() => Pago, (pago) => pago.venta, {
+        cascade: true,
+        eager: false
     })
-    observaciones: string;
+    pagos: Pago[];
+
+    @Column({ type: 'text', nullable: true })
+    observaciones: string | null;
 
     @CreateDateColumn()
-    createdAt: Date; // fecha creacion de la venta
+    createdAt: Date;
 
     @UpdateDateColumn()
-    updatedAt: Date; // fecha de ultima modificacion de la venta
-
+    updatedAt: Date;
 }
-

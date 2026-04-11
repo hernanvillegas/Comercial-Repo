@@ -2,7 +2,6 @@ import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColum
 import { ProductImage } from "./";
 import { User } from "src/auth/entities/user.entity";
 import { Proveedor } from "src/proveedor/entities/proveedor.entity";
-import { Venta } from "src/ventas/entities/venta.entity";
 
 
 @Entity({ name: 'producto_motos ' })
@@ -123,15 +122,7 @@ export class Product {
     etiquetas: string[];
 
 
-    /////////////////////////////// ultia modificacion
-    @OneToMany(() => Venta, (venta) => venta.producto,
 
-        {
-            cascade: true, // Permite crear libros al crear un autor
-            eager: false // No carga automáticamente los libros (usar relations en queries)
-        }
-    )
-    ventas: Venta[];
 
 
     @CreateDateColumn()

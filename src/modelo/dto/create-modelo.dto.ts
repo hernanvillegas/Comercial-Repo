@@ -1,4 +1,4 @@
-import { IsArray, IsDate, IsInt, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
+import { IsArray, IsDate, IsInt, IsOptional, IsPositive, IsString, Min, MinLength } from "class-validator";
 
 
 
@@ -29,7 +29,7 @@ export class CreateModeloDto {
     capacidad_carga?: string;//nombre de campo
     
     @IsInt()
-    @IsPositive()
+    @Min(0)
     @IsOptional()
     numero_puertas?:number;//nombre de campo
     

@@ -1,41 +1,52 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete,ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { VentasService } from './ventas.service';
 import { CreateVentaDto } from './dto/create-venta.dto';
 import { UpdateVentaDto } from './dto/update-venta.dto';
 import { FilterVentaDto } from './dto/filter-venta.dto';
-// import { FilterVentaDto } from './dto/filter-venta.dto';
+import { Auth } from 'src/auth/decorators';
+import { ValidRoles } from 'src/auth/interfaces';
 
-
+@ApiTags('Ventas')
 @Controller('ventas')
 export class VentasController {
 
-constructor(private readonly ventasService: VentasService) {}
+    constructor(private readonly ventasService: VentasService) {}
 
-  @Post('register')
-  create(@Body() createVentaDto: CreateVentaDto) {
-    return this.ventasService.create(createVentaDto);
-  }
-
-  @Get()
-  findAll(@Query() filters: FilterVentaDto) {
-    if (Object.keys(filters).length === 0) {
-      return this.ventasService.findAll();
+    // admin y super-user pueden crear ventas
+    @Post('register')
+    @Auth(ValidRoles.superUser, ValidRoles.admin)
+    create(@Body() createVentaDto: CreateVentaDto) {
+        return this.ventasService.create(createVentaDto);
     }
-    return this.ventasService.findWithFilters(filters);
-  }
 
-  @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.ventasService.findOne(id);
-  }
+    // admin y super-user pueden ver ventas
+    @Get()
+    @Auth(ValidRoles.superUser, ValidRoles.admin)
+    findAll(@Query() filters: FilterVentaDto) {
+        if (Object.keys(filters).length === 0) {
+            return this.ventasService.findAll();
+        }
+        return this.ventasService.findWithFilters(filters);
+    }
 
-  @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateVentaDto: UpdateVentaDto) {
-    return this.ventasService.update(id, updateVentaDto);
-  }
+    @Get(':id')
+    @Auth(ValidRoles.superUser, ValidRoles.admin)
+    findOne(@Param('id', ParseUUIDPipe) id: string) {
+        return this.ventasService.findOne(id);
+    }
 
-  @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.ventasService.remove(id);
-  }
+    // admin puede actualizar estado de venta, super-user también
+    @Patch(':id')
+    @Auth(ValidRoles.superUser, ValidRoles.admin)
+    update(@Param('id', ParseUUIDPipe) id: string, @Body() updateVentaDto: UpdateVentaDto) {
+        return this.ventasService.update(id, updateVentaDto);
+    }
+
+    // Solo super-user puede eliminar ventas
+    @Delete(':id')
+    @Auth(ValidRoles.superUser)
+    remove(@Param('id', ParseUUIDPipe) id: string) {
+        return this.ventasService.remove(id);
+    }
 }

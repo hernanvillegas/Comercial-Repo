@@ -49,7 +49,7 @@ export class ModeloService {
   // Obtener todos los modelos con información de marca
   async findAll(): Promise<Modelo[]> {
     return await this.modeloRepository.find({
-      relations: ['marca'],
+      relations: ['marcas'],
       order: { anio_modelo: 'DESC' }
     });
   }
@@ -58,7 +58,7 @@ export class ModeloService {
   async findOne(id: number): Promise<Modelo> {
     const modelo = await this.modeloRepository.findOne({
       where: { id_modelo: id },
-      relations: ['marca']
+      relations: ['marcas']
     });
 
     if (!modelo) {
@@ -72,7 +72,7 @@ export class ModeloService {
   async findByMarca(idMarca: number): Promise<Modelo[]> {
     return await this.modeloRepository.find({
       where: { idMarca },
-      relations: ['marca'],
+      relations: ['marcas'],
       order: { anio_modelo: 'DESC' }
     });
   }
@@ -81,7 +81,7 @@ export class ModeloService {
   async findByTipoCombustible(tipo_combustible: string): Promise<Modelo[]> {
     return await this.modeloRepository.find({
       where: { tipo_combustible },
-      relations: ['marca'],
+      relations: ['marcas'],
       order: { anio_modelo: 'DESC' }
     });
   }
@@ -90,7 +90,7 @@ export class ModeloService {
   async findByAño(anio_modelo: Date): Promise<Modelo[]> {
     return await this.modeloRepository.find({
       where: { anio_modelo: anio_modelo },
-      relations: ['marca'],
+      relations: ['marcas'],
       order: { nombre_modelo: 'ASC' }
     });
   }

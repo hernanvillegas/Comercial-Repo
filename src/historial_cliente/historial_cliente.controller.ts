@@ -1,16 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseBoolPipe, ParseIntPipe } from '@nestjs/common';
-import { HistorialClienteService } from './historial_cliente.service';
+import {
+  Controller, Get, Post, Body, Patch,
+  Param, Delete, ParseIntPipe,
+} from '@nestjs/common';
+import { HistorialClienteService }   from './historial_cliente.service';
 import { CreateHistorialClienteDto } from './dto/create-historial_cliente.dto';
 import { UpdateHistorialClienteDto } from './dto/update-historial_cliente.dto';
 
 @Controller('historial-cliente')
 export class HistorialClienteController {
-  constructor(private readonly historialClienteService: HistorialClienteService) { }
-
+  constructor(private readonly historialClienteService: HistorialClienteService) {}
 
   @Post('register')
-  create(@Body() createHistorialClienteDto: CreateHistorialClienteDto) {
-    return this.historialClienteService.create(createHistorialClienteDto);
+  create(@Body() dto: CreateHistorialClienteDto) {
+    return this.historialClienteService.create(dto);
   }
 
   @Get()
@@ -18,13 +20,23 @@ export class HistorialClienteController {
     return this.historialClienteService.findAll();
   }
 
-  // @Get()
-  // findAll(@Query('cumplido', new ParseBoolPipe({ optional: true })) cumplido?: boolean) {
-  //   if (cumplido !== undefined) {
-  //     return this.historialClienteService.findByCumplido(cumplido); 
-  //   }
-  //   return this.historialClienteService.findAll();
-  // }
+  @Get(':clienteId/resumen')
+  getResumenCliente(@Param('clienteId', ParseIntPipe) clienteId: number) {
+    return this.historialClienteService.getResumenCliente(clienteId);
+  }
+
+  @Patch(':clienteId/observaciones')
+  updateObservaciones(
+    @Param('clienteId', ParseIntPipe) clienteId: number,
+    @Body('observaciones') observaciones: string,
+  ) {
+    return this.historialClienteService.updateObservaciones(clienteId, observaciones);
+  }
+
+  @Patch(':clienteId/calificar')
+  recalcularCalificacion(@Param('clienteId', ParseIntPipe) clienteId: number) {
+    return this.historialClienteService.recalcularCalificacion(clienteId);
+  }
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -32,16 +44,16 @@ export class HistorialClienteController {
   }
 
   @Get(':userId/relations')
-  async findActiveProductsByUserId(@Param('userId') userId: string) {
-    return await this.historialClienteService.findActiveProductsByUserId(+userId);
+  findActiveProductsByUserId(@Param('userId', ParseIntPipe) userId: number) {
+    return this.historialClienteService.findActiveProductsByUserId(userId);
   }
 
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateHistorialClienteDto: UpdateHistorialClienteDto,
+    @Body() dto: UpdateHistorialClienteDto,
   ) {
-    return this.historialClienteService.update(id, updateHistorialClienteDto);
+    return this.historialClienteService.update(id, dto);
   }
 
   @Delete(':id')

@@ -1,17 +1,17 @@
-import { Controller, Get, } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { SeedService } from './seed.service';
-import { Auth } from 'src/auth/decorators';
-import { ValidRoles } from 'src/auth/interfaces';
 
+@ApiTags('Seed')
 @Controller('seed')
 export class SeedController {
-  constructor(private readonly seedService: SeedService) {}
 
- @Get()
-//  @Auth(ValidRoles.admin) // ESTO ES PARA DAR PERMISOS para que solo un admin entre a este sitio
- executeSeed(){
-   return this.seedService.runSeed()
- }
+    constructor(private readonly seedService: SeedService) {}
+
+    // ⚠️  SOLO USAR EN DESARROLLO
+    // En producción proteger con: @Auth(ValidRoles.superUser)
+    @Get()
+    executeSeed() {
+        return this.seedService.runSeed();
+    }
 }
-
-
