@@ -2,7 +2,6 @@ import {
     BeforeInsert, BeforeUpdate, Column, CreateDateColumn,
     Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn
 } from 'typeorm';
-import { Product } from '../../products/entities';
 import { Producto } from 'src/producto/entities/producto.entity';
 import { Venta } from 'src/ventas/entities/venta.entity';
 
@@ -24,7 +23,7 @@ export class User {
     @Column({ type: 'text', name: 'sucursal', nullable: true, unique: false })
     sucursal: string;
 
-    @Column({ name: 'fecha_nacimiento', type: 'date', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ name: 'fecha_nacimiento', type: 'date' })
     fecha_nacimiento: Date;
 
     @Column({ type: 'int', name: 'celular', nullable: true, unique: true })
@@ -61,10 +60,7 @@ export class User {
     })
     ventas: Venta[];
 
-    // ── Relación con producto_motos (sin cambios, no tocar) ───────────────
-    @OneToMany(() => Product, (product) => product.user)
-    product: Product;
-
+    
     // ── NUEVO: relación con tabla producto unificada ───────────────────────
     @OneToMany(() => Producto, (producto) => producto.user)
     productos: Producto[];

@@ -1,6 +1,7 @@
 import { MovimientoCaja } from "src/movimiento-caja/entities/movimiento-caja.entity";
 import { Venta } from "src/ventas/entities/venta.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { EstadoCuota } from 'src/common/enums';
 
 
 @Entity('cuotas_credito')
@@ -29,8 +30,8 @@ export class CuotaCredito {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   montoRestante: number;
 
-  @Column({ type: 'varchar', length: 20, nullable: false, default: 'pendiente' })
-  estado: string;
+  @Column({ type: 'enum', enum: EstadoCuota, default: EstadoCuota.PENDIENTE })
+  estado: EstadoCuota;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   mora: number;

@@ -36,9 +36,5 @@ export class UserRoleGuard implements CanActivate {
       `Usuario ${user.fullName} necesita un rol válido: [${validRoles}]`
     );
 
-    // console.log({validRoles:user.roles});
-    
-
-    return true;
   }
 }

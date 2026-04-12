@@ -6,7 +6,7 @@ import { ValidRoles } from 'src/auth/interfaces';
 
 @ApiTags('Reportes')
 @Controller('reportes')
-@Auth(ValidRoles.superUser, ValidRoles.admin) // todos los reportes requieren al menos admin
+@Auth(ValidRoles.superAdmin, ValidRoles.admin) // todos los reportes requieren al menos admin
 export class ReportesController {
 
     constructor(private readonly reportesService: ReportesService) {}
@@ -35,7 +35,7 @@ export class ReportesController {
 
     // GET /api/reportes/productos/rentabilidad?limit=10
     @Get('productos/rentabilidad')
-    @Auth(ValidRoles.superUser) // solo super-user ve rentabilidad
+    @Auth(ValidRoles.superAdmin) // solo super-user ve rentabilidad
     rentabilidad(@Query('limit') limit = 10) {
         return this.reportesService.rentabilidadProductos(Number(limit));
     }

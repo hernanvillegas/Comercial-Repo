@@ -36,9 +36,7 @@ export class Cliente {
 
     @Column({
         name: 'fecha_nacimiento',
-        // type: 'timestamp',
         type: 'date',
-        default: () => 'CURRENT_TIMESTAMP'
     })
     fecha_nacimiento: Date;
 

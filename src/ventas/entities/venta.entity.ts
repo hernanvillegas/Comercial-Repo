@@ -9,6 +9,8 @@ import {
     CreateDateColumn, UpdateDateColumn,
     ManyToOne, JoinColumn, OneToMany
 } from 'typeorm';
+import { TipoVenta, EstadoVenta } from 'src/common/enums';
+
 
 @Entity('ventas')
 export class Venta {
@@ -19,8 +21,8 @@ export class Venta {
     @Column({ type: 'varchar', unique: true, nullable: false })
     numeroFactura: string;
 
-    @Column({ type: 'varchar', nullable: false })
-    tipoVenta: string;
+    @Column({ type: 'enum', enum: TipoVenta, nullable: false })
+    tipoVenta: TipoVenta;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: false })
     fechaVenta: Date;
@@ -35,8 +37,8 @@ export class Venta {
     @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
     precioTotal: number;
 
-    @Column({ type: 'varchar', nullable: false })
-    estadoVenta: string;
+    @Column({ type: 'enum', enum: EstadoVenta, nullable: false })
+    estadoVenta: EstadoVenta;
 
     @Column({ type: 'int', nullable: true })
     numeroCuotas: number | null;

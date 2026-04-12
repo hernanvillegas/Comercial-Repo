@@ -71,14 +71,7 @@ export class Garante {
         })
         verificado: boolean; //nullable en true acepta nulos
 
-        @Column({
-                name: 'fecha_registro',
-                type: 'timestamp',
-                default: () => 'CURRENT_TIMESTAMP'
-        })
-        fecha_registro: Date;//nullable en true acepta nulos
-
-
+        
         // relacion con la tabla CLIENTE N:N
         @ManyToMany(() => Cliente, (cliente) => cliente.garantes)
         clientes: Garante[];

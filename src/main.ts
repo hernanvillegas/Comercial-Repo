@@ -9,10 +9,10 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   app.enableCors({
-    origin:      process.env.CORS_ORIGIN || 'http://localhost:4200',
+    origin:      process.env.CORS_ORIGIN?.split(',') ?? ['http://localhost:4200'],
     methods:     'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-  });
+});
 
   app.setGlobalPrefix('api');
 

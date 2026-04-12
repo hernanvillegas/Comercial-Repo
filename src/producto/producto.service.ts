@@ -13,6 +13,8 @@ import { UpdateProductoDto } from './dto/update-producto.dto';
 import { Proveedor } from 'src/proveedor/entities/proveedor.entity';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dto/paginacion.dto';
+import { TipoProducto } from 'src/common/enums';
+import { DeepPartial } from 'typeorm';
 
 @Injectable()
 export class ProductoService {
@@ -46,11 +48,13 @@ export class ProductoService {
                 throw new BadRequestException(`El proveedor ${proveedorExiste.id_proveedor} está inactivo`);
             }
 
+            // ✅ Desestructuramos images (viene como string[]) y el resto
             const { images = [], ...productoDetails } = createProductoDto;
 
             const producto = this.productoRepository.create({
-                ...productoDetails,
-                images: images.map(url => this.productoImageRepository.create({ url })),
+                ...productoDetails,                                               
+                tipo_producto: productoDetails.tipo_producto as TipoProducto,   
+                images: images.map(url => this.productoImageRepository.create({ url })), 
                 user,
             });
 
@@ -88,7 +92,7 @@ export class ProductoService {
         const { limit = 10, offset = 0 } = paginationDto;
 
         const productos = await this.productoRepository.find({
-            where: { tipo_producto: tipo, disponible: true },
+            where: { tipo_producto: tipo as TipoProducto, disponible: true },
             take: limit,
             skip: offset,
             relations: { images: true },
@@ -139,7 +143,12 @@ export class ProductoService {
 
     async update(id: string, updateProductoDto: UpdateProductoDto, user: User) {
         const { images, ...toUpdate } = updateProductoDto;
-        const producto = await this.productoRepository.preload({ id, ...toUpdate });
+
+        const producto = await this.productoRepository.preload({
+            id,
+            ...toUpdate,
+            ...(toUpdate.tipo_producto && { tipo_producto: toUpdate.tipo_producto as TipoProducto }),
+        } as DeepPartial<Producto>);  
 
         if (!producto)
             throw new NotFoundException(`El producto con id ${id} NO existe`);
@@ -150,7 +159,6 @@ export class ProductoService {
 
         try {
             if (images) {
-                // Eliminar imágenes anteriores de este producto
                 await queryRunner.manager.delete(ProductoImage, { producto: { id } });
                 producto.images = images.map(url => this.productoImageRepository.create({ url }));
             }
@@ -168,7 +176,6 @@ export class ProductoService {
             this.manejoDBExcepciones(error);
         }
     }
-
     async remove(id: string) {
         const producto = await this.findOne(id);
         await this.productoRepository.remove(producto);

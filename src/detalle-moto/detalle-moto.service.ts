@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { DetalleMoto } from './entities/detalle-moto.entity';
 import { CreateDetalleMotoDto } from './dto/create-detalle-moto.dto';
 import { UpdateDetalleMotoDto } from './dto/update-detalle-moto.dto';
+import { EstadoMoto } from 'src/common/enums';
 
 @Injectable()
 export class DetalleMotoService {
@@ -17,7 +18,10 @@ export class DetalleMotoService {
 
     async create(createDetalleMotoDto: CreateDetalleMotoDto) {
         try {
-            const detalle = this.detalleMotoRepository.create(createDetalleMotoDto);
+            const detalle = this.detalleMotoRepository.create({
+                ...createDetalleMotoDto,
+                estado_moto: createDetalleMotoDto.estado_moto as EstadoMoto,
+            });
             await this.detalleMotoRepository.save(detalle);
             return detalle;
         } catch (error) {
@@ -58,7 +62,7 @@ export class DetalleMotoService {
 
     async findByEstado(estado: string) {
         return await this.detalleMotoRepository.find({
-            where: { estado_moto: estado },
+            where: { estado_moto: estado as EstadoMoto },
             relations: ['producto'],
             order: { fecha_ingreso: 'DESC' }
         });

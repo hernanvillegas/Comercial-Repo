@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MovimientoCaja } from './entities/movimiento-caja.entity';
 import { Between, Repository } from 'typeorm';
 import { FilterMovimientoCajaDto } from './dto/filter-movimiento-caja.dto';
+import { PaginationDto } from 'src/common/dto/paginacion.dto';
 
 @Injectable()
 export class MovimientoCajaService {
@@ -19,12 +20,15 @@ export class MovimientoCajaService {
     return await this.movimientosRepository.save(movimiento);
   }
 
-  async findAll(): Promise<MovimientoCaja[]> {
+  async findAll(paginationDto: PaginationDto): Promise<MovimientoCaja[]> {
+    const { limit = 20, offset = 0 } = paginationDto;
     return await this.movimientosRepository.find({
-      relations: ['venta', 'cuota', 'venta.cliente'],
-      order: { fechaPago: 'DESC' }
+        relations: ['venta', 'cuota', 'venta.cliente'],
+        order: { fechaPago: 'DESC' },
+        take: limit,
+        skip: offset,
     });
-  }
+}
 
   async findOne(id: string): Promise<MovimientoCaja> {
     const movimiento = await this.movimientosRepository.findOne({

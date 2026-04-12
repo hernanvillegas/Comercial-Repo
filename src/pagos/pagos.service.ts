@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Pago } from './entities/pago.entity';
 import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
+import { PaginationDto } from 'src/common/dto/paginacion.dto';
 
 @Injectable()
 export class PagosService {
@@ -28,10 +29,13 @@ export class PagosService {
         }
     }
 
-    async findAll() {
+    async findAll(paginationDto: PaginationDto) {
+        const { limit = 20, offset = 0 } = paginationDto;
         return await this.pagoRepository.find({
             relations: ['venta', 'cuota', 'empleado', 'venta.cliente'],
-            order: { fechaPago: 'DESC' }
+            order: { fechaPago: 'DESC' },
+            take: limit,
+            skip: offset,
         });
     }
 

@@ -1,7 +1,6 @@
 import {
     Controller, Get, Post, Patch, Delete,
     Body, Param, ParseUUIDPipe,
-    UseGuards, Req, Headers
 } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { IncomingHttpHeaders } from 'http';
@@ -12,6 +11,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Auth, GetUser, RawHeaders } from './decorators';
 import { ValidRoles } from './interfaces';
 import { User } from './entities/user.entity';
+import { Throttle } from '@nestjs/throttler';
+
 
 @ApiTags('Auth / Usuarios')
 @Controller('auth')
@@ -21,13 +22,16 @@ export class AuthController {
 
     // ── Rutas públicas ────────────────────────────────────────────────────
 
-    @Post('register')
+    
     // Sin @Auth — solo super-user debería usar esto en producción,
     // pero lo dejamos abierto para el primer usuario del sistema.
+    @Post('register')
+    @Auth(ValidRoles.superAdmin)  // ✅ solo super-user puede crear usuarios
     createUser(@Body() createUserDto: CreateUserDto) {
         return this.authService.create(createUserDto);
     }
 
+    @Throttle({ default: { ttl: 60000, limit: 5 } })
     @Post('login')
     loginUser(@Body() loginUserDto: LoginUserDto) {
         return this.authService.login(loginUserDto);
@@ -39,10 +43,16 @@ export class AuthController {
         return this.authService.checkAuthStatus(user);
     }
 
+    @Post('refresh')
+    @Auth()
+    refreshToken(@GetUser() user: User) {
+        return this.authService.refreshToken(user);
+    }
+
     // ── CRUD usuarios (solo super-user) ───────────────────────────────────
 
     @Get('usuarios')
-    @Auth(ValidRoles.superUser)
+    @Auth(ValidRoles.superAdmin)
     @ApiResponse({ status: 200, description: 'Lista de todos los usuarios' })
     @ApiResponse({ status: 403, description: 'Solo super-user puede ver usuarios' })
     findAll() {
@@ -50,13 +60,13 @@ export class AuthController {
     }
 
     @Get('usuarios/:id')
-    @Auth(ValidRoles.superUser)
+    @Auth(ValidRoles.superAdmin)
     findOne(@Param('id', ParseUUIDPipe) id: string) {
         return this.authService.findOne(id);
     }
 
     @Patch('usuarios/:id')
-    @Auth(ValidRoles.superUser)
+    @Auth(ValidRoles.superAdmin)
     @ApiResponse({ status: 200, description: 'Usuario actualizado' })
     @ApiResponse({ status: 403, description: 'Solo super-user puede modificar usuarios' })
     update(
@@ -67,7 +77,7 @@ export class AuthController {
     }
 
     @Patch('usuarios/:id/rol')
-    @Auth(ValidRoles.superUser)
+    @Auth(ValidRoles.superAdmin)
     @ApiResponse({ status: 200, description: 'Rol cambiado' })
     cambiarRol(
         @Param('id', ParseUUIDPipe) id: string,
@@ -77,14 +87,14 @@ export class AuthController {
     }
 
     @Patch('usuarios/:id/desactivar')
-    @Auth(ValidRoles.superUser)
+    @Auth(ValidRoles.superAdmin)
     @ApiResponse({ status: 200, description: 'Usuario desactivado (no se elimina de BD)' })
     desactivar(@Param('id', ParseUUIDPipe) id: string) {
         return this.authService.desactivar(id);
     }
 
     @Delete('usuarios/:id')
-    @Auth(ValidRoles.superUser)
+    @Auth(ValidRoles.superAdmin)
     @ApiResponse({ status: 200, description: 'Usuario eliminado permanentemente' })
     @ApiResponse({ status: 403, description: 'Solo super-user puede eliminar usuarios' })
     remove(@Param('id', ParseUUIDPipe) id: string) {

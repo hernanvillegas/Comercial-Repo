@@ -5,6 +5,7 @@ import { CreatePagoDto } from './dto/create-pago.dto';
 import { UpdatePagoDto } from './dto/update-pago.dto';
 import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
+import { PaginationDto } from 'src/common/dto/paginacion.dto';
 
 @ApiTags('Pagos')
 @Controller('pagos')
@@ -20,9 +21,12 @@ export class PagosController {
 
     @Get()
     @Auth()
-    findAll(@Query() filters: any) {
+    findAll(
+        @Query() filters: any,
+        @Query() pagination: PaginationDto,
+    ) {
         if (Object.keys(filters).length === 0) {
-            return this.pagosService.findAll();
+            return this.pagosService.findAll(pagination);
         }
         return this.pagosService.findWithFilters(filters);
     }

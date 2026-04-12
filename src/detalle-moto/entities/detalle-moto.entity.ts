@@ -4,6 +4,7 @@ import {
 } from 'typeorm';
 import { Producto } from 'src/producto/entities/producto.entity';
 import { Modelo } from 'src/modelo/entities/modelo.entity';
+import { EstadoMoto } from 'src/common/enums';
 
 @Entity('detalle_moto')
 export class DetalleMoto {
@@ -52,11 +53,11 @@ export class DetalleMoto {
     tipo_moto: string;
 
     // disponible, vendido, reservado, baja
-    @Column({
-        type: 'text',
-        nullable: false
-    })
-    estado_moto: string;
+    @Column({ 
+        type: 'enum', 
+        enum: EstadoMoto, 
+        default: EstadoMoto.DISPONIBLE })
+    estado_moto: EstadoMoto;
 
     @Column({
         type: 'date',

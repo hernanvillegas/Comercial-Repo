@@ -1,7 +1,7 @@
 // src/ventas/dto/filter-venta.dto.ts
 import { IsOptional, IsEnum, IsNumber, IsString, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
-import { TipoVenta, EstadoVenta } from './create-venta.dto';
+import { TipoVenta, EstadoVenta } from 'src/common/enums';
 
 export class FilterVentaDto {
   @IsOptional()

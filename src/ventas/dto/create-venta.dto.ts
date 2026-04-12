@@ -1,69 +1,64 @@
 import { IsString, IsNotEmpty, IsNumber, IsOptional, IsEnum, IsUUID, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-
-export enum TipoVenta {
-  CREDITO = 'credito',
-  CONTADO = 'contado'
-}
-
-export enum EstadoVenta {
-  ACTIVA = 'activa',
-  PAGADA = 'pagada',
-  CANCELADA = 'cancelada'
-}
+import { TipoVenta, EstadoVenta } from 'src/common/enums';
 
 export class CreateVentaDto {
-  @IsString()
-  @IsNotEmpty()
-  numeroFactura: string;
 
-  @IsEnum(TipoVenta)
-  @IsNotEmpty()
-  tipoVenta: TipoVenta;
+    @IsString()
+    @IsNotEmpty()
+    numeroFactura: string;
 
-  @IsOptional()
-  fechaVenta?: Date;
+    @IsEnum(TipoVenta)
+    @IsNotEmpty()
+    tipoVenta: TipoVenta;
 
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsNotEmpty()
-  @Type(() => Number)
-  precioVenta: number;
+    @IsOptional()
+    fechaVenta?: Date;
 
-  @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Type(() => Number)
-  descuento?: number;
+    @IsNumber({ maxDecimalPlaces: 2 })
+    @IsOptional()
+    @Type(() => Number)
+    subtotal?: number;
 
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsNotEmpty()
-  @Type(() => Number)
-  precioTotal: number;
+    @IsOptional()
+    @IsNumber({ maxDecimalPlaces: 2 })
+    @Type(() => Number)
+    descuento?: number;
 
-  @IsEnum(EstadoVenta)
-  @IsNotEmpty()
-  estadoVenta: EstadoVenta;
+    @IsNumber({ maxDecimalPlaces: 2 })
+    @IsNotEmpty()
+    @Type(() => Number)
+    precioTotal: number;
 
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  numeroCuotas?: number;
+    @IsEnum(EstadoVenta)
+    @IsNotEmpty()
+    estadoVenta: EstadoVenta;
 
-  @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(1000)
-  @Type(() => Number)
-  entradaInicial?: number;
+    @IsOptional()
+    @IsNumber()
+    @Type(() => Number)
+    numeroCuotas?: number;
 
-  @IsString() /////////////////
-  @IsNotEmpty()
-  idEmpleadoFk: string;
+    @IsOptional()
+    @IsNumber({ maxDecimalPlaces: 2 })
+    @Min(1000)
+    @Type(() => Number)
+    entradaInicial?: number;
 
-  @IsUUID()
-  @IsNotEmpty()
-  idProductoFk: string;
+    @IsOptional()
+    @IsString()
+    observaciones?: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  @Type(() => Number)
-  idClienteFk: number;
+    @IsString()
+    @IsNotEmpty()
+    idEmpleadoFk: string;
+
+    @IsOptional()
+    @IsUUID()
+    idProductoFk?: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    @Type(() => Number)
+    idClienteFk: number;
 }

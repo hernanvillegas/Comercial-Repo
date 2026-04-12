@@ -1,6 +1,6 @@
 import { IsOptional, IsEnum, IsUUID, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
-import { EstadoCuota } from './create-cuota-credito.dto';
+import { EstadoCuota } from 'src/common/enums';
 
 export class FilterCuotaCreditoDto {
   @IsOptional()

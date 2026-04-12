@@ -30,7 +30,7 @@ export class GaranteService {
 
   async findAll(): Promise<Garante[]> {
     return await this.garanteRepository.find({
-      order: { fecha_registro: 'DESC' }
+      order: { id_garante: 'DESC' }
     });
   }
   async findOne(id: number): Promise<Garante> {
@@ -60,7 +60,7 @@ export class GaranteService {
   async findVerificados(): Promise<Garante[]> {
     return await this.garanteRepository.find({
       where: { verificado: true },
-      order: { fecha_registro: 'DESC' }
+      order: { id_garante: 'DESC' }
     });
   }
 

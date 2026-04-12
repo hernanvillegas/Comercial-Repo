@@ -8,6 +8,7 @@ import { Venta } from 'src/ventas/entities/venta.entity';
 import { DetalleVenta } from 'src/detalle-venta/entities/detalle-venta.entity';
 import { MovimientoInventario } from 'src/movimiento-inventario/entities/movimiento-inventario.entity';
 import { Producto } from 'src/producto/entities/producto.entity';
+import { TipoVenta, EstadoVenta } from 'src/common/enums';
 
 @Injectable()
 export class CarritoService {
@@ -142,13 +143,13 @@ export class CarritoService {
             // 2. Crear la venta
             const venta = new Venta();
             venta.numeroFactura  = datosVenta.numeroFactura;
-            venta.tipoVenta      = datosVenta.tipoVenta;
+            venta.tipoVenta      = datosVenta.tipoVenta as TipoVenta;
             venta.idClienteFk    = idCliente;
             venta.idEmpleadoFk   = datosVenta.idEmpleadoFk;
             venta.subtotal       = subtotal;
             venta.descuento      = descuento;
             venta.precioTotal    = precioTotal;
-            venta.estadoVenta    = datosVenta.tipoVenta === 'credito' ? 'en_credito' : 'completada';
+            venta.estadoVenta = datosVenta.tipoVenta === TipoVenta.CREDITO ? EstadoVenta.EN_CREDITO : EstadoVenta.COMPLETADA;
             venta.numeroCuotas   = datosVenta.numeroCuotas ?? null;
             venta.entradaInicial = datosVenta.entradaInicial ?? null;
             venta.observaciones  = datosVenta.observaciones ?? null;

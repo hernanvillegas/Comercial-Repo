@@ -40,7 +40,4 @@ export class CreateGaranteDto {
     @IsOptional()
     verificado?: boolean;
 
-    @IsDate()
-    @IsOptional()
-    fecha_registro: Date;
 }
