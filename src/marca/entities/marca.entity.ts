@@ -19,7 +19,7 @@ export class Marca {
     @Column({
             type: 'text',
             nullable: false,
-            unique:true
+            unique:false
         })
     pais_origen:string; //nullable en true acepta nulos
 

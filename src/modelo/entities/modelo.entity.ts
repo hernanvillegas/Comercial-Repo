@@ -104,12 +104,13 @@ export class Modelo {
   idMarca: number;
 
   // Relación: Muchos modelos pertenecen a una marca
-  @ManyToOne(() => Marca, (marca) => marca.modelos, {
-    onDelete: 'CASCADE',// Si se elimina el autor, se eliminan sus libros
-    onUpdate: 'CASCADE'
-  })
-  @JoinColumn({ name: 'id_marca' })
-  marcas: Marca;
+    @ManyToOne(() => Marca, (marca) => marca.modelos, {
+        onDelete: 'CASCADE',// Si se elimina el autor, se eliminan sus libros
+        onUpdate: 'CASCADE',
+        eager: true  // ← carga automáticamente la marca
+    })
+    @JoinColumn({ name: 'id_marca' })
+    marcas: Marca;
 
   ///////////////////////////////////////////// campos generados automaticamennte
   @BeforeInsert()

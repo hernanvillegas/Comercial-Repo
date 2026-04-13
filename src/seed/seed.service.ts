@@ -33,7 +33,7 @@ export class SeedService implements OnApplicationBootstrap {
             email:            adminEmail,
             fullName:         'Administrador',
             password:         bcrypt.hashSync('Admin1234', 10),
-            roles:            ['admin', 'user','super-user'],
+            roles:            ['admin', 'user','super-admin'],
             isActive:         true,
             fecha_nacimiento: new Date('1990-01-01'),
             sucursal:         'Principal',
