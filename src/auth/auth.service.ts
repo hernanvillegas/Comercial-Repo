@@ -34,6 +34,7 @@ export class AuthService {
             const user = this.userRepository.create({
                 ...userData,
                 password: bcrypt.hashSync(password, 10),
+                fullName: `${userData.nombre_user} ${userData.apellido_user}`, 
             });
 
             await this.userRepository.save(user);

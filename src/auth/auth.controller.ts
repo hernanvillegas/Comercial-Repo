@@ -18,16 +18,24 @@ import { Throttle } from '@nestjs/throttler';
 @Controller('auth')
 export class AuthController {
 
-    constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) { }
 
     // ── Rutas públicas ────────────────────────────────────────────────────
 
-    
+
     // Sin @Auth — solo super-user debería usar esto en producción,
     // pero lo dejamos abierto para el primer usuario del sistema.
+    
+    // Registro público — sin guard, siempre crea con rol 'user'
     @Post('register')
-    @Auth(ValidRoles.superAdmin)  // ✅ solo super-user puede crear usuarios
     createUser(@Body() createUserDto: CreateUserDto) {
+        return this.authService.create({ ...createUserDto, roles: ['user'] });
+    }
+
+    // Registro desde admin — requiere super-admin, acepta cualquier rol
+    @Post('register/admin')
+    @Auth(ValidRoles.superAdmin)
+    createUserAdmin(@Body() createUserDto: CreateUserDto) {
         return this.authService.create(createUserDto);
     }
 

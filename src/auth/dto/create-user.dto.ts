@@ -1,21 +1,19 @@
 import { Transform } from 'class-transformer';
-import { IsDateString, IsEmail, IsNotEmpty, IsNumber, IsPositive, IsString, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
-
+import { IsArray, IsDateString, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 export class CreateUserDto {
 
-
     @IsString()
-    @MinLength(3, { message: 'El nombre debe tener al menos 3 caracteres' })
+    @MinLength(3)
     nombre_user: string;
 
     @IsString()
-    @MinLength(3, { message: 'El apellido debe tener al menos 3 caracteres' })
+    @MinLength(3)
     apellido_user: string;
 
     @IsNumber()
-    @Min(1000000, { message: 'El CI debe tener al menos 7 dígitos' })
-    @Max(99999999, { message: 'El CI debe tener máximo 8 dígitos' })
+    @Min(1000000)
+    @Max(99999999)
     ci_user: number;
 
     @IsString()
@@ -25,8 +23,8 @@ export class CreateUserDto {
     fecha_nacimiento: string;
 
     @IsNumber()
-    @Min(10000000, { message: 'El celular debe tener exactamente 8 dígitos' })
-    @Max(99999999, { message: 'El celular debe tener exactamente 8 dígitos' })
+    @Min(10000000)
+    @Max(99999999)
     celular: number;
 
     @IsString()
@@ -41,8 +39,6 @@ export class CreateUserDto {
     @Transform(({ value }) => parseFloat(value))
     ingreso_mensual: number;
 
-
-    //////////////////////////////////////////////////
     @IsString()
     @IsEmail()
     email: string;
@@ -56,8 +52,10 @@ export class CreateUserDto {
     })
     password: string;
 
-    @IsString()
-    @MinLength(1)
-    fullName: string;
 
+    // ── Roles opcionales ──────────────────────────────────────────────────
+    @IsArray()
+    @IsString({ each: true })
+    @IsOptional()
+    roles?: string[];
 }
