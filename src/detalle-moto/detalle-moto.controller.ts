@@ -39,13 +39,13 @@ export class DetalleMotoController {
     }
 
     @Patch(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     update(@Param('id', ParseIntPipe) id: number, @Body() updateDetalleMotoDto: UpdateDetalleMotoDto) {
         return this.detalleMotoService.update(id, updateDetalleMotoDto);
     }
 
     @Delete(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     remove(@Param('id', ParseIntPipe) id: number) {
         return this.detalleMotoService.remove(id);
     }

@@ -13,7 +13,7 @@ export class PackController {
     constructor(private readonly packService: PackService) {}
 
     @Post()
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     create(@Body() createPackDto: CreatePackDto) {
         return this.packService.create(createPackDto);
     }
@@ -34,13 +34,13 @@ export class PackController {
     }
 
     @Patch(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     update(@Param('id', ParseUUIDPipe) id: string, @Body() updatePackDto: UpdatePackDto) {
         return this.packService.update(id, updatePackDto);
     }
 
     @Delete(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.packService.remove(id);
     }

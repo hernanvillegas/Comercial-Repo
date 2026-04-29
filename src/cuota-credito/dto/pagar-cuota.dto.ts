@@ -10,4 +10,10 @@ export class PagarCuotaDto {
   @IsOptional()
   @IsString()
   observaciones?: string;
+
+  
+  @IsOptional()
+  @IsString()
+  metodoPago?: string;
 }
+

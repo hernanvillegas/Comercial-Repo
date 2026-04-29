@@ -32,7 +32,7 @@ export class PagosController {
     }
 
     @Get('resumen/metodo')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     obtenerResumenPorMetodo(
         @Query('fechaDesde') fechaDesde?: string,
         @Query('fechaHasta') fechaHasta?: string,
@@ -62,13 +62,13 @@ export class PagosController {
     }
 
     @Patch(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     update(@Param('id', ParseUUIDPipe) id: string, @Body() updatePagoDto: UpdatePagoDto) {
         return this.pagosService.update(id, updatePagoDto);
     }
 
     @Delete(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.pagosService.remove(id);
     }

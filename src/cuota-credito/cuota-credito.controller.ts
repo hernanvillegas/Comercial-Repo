@@ -5,9 +5,10 @@ import { CreateCuotaCreditoDto } from './dto/create-cuota-credito.dto';
 import { UpdateCuotaCreditoDto } from './dto/update-cuota-credito.dto';
 import { FilterCuotaCreditoDto } from './dto/filter-cuota-credito.dto';
 import { PagarCuotaDto } from './dto/pagar-cuota.dto';
-import { Auth } from 'src/auth/decorators';
+import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { PaginationDto } from 'src/common/dto/paginacion.dto';
+import { User } from 'src/auth/entities/user.entity';
 
 @ApiTags('Cuota-Credito')
 @Controller('cuota-credito')
@@ -33,6 +34,12 @@ export class CuotaCreditoController {
         return this.cuotaCreditoService.findWithFilters(filters);
     }
 
+    @Get('cliente/:idCliente')
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
+    findByCliente(@Param('idCliente') idCliente: string) {
+        return this.cuotaCreditoService.findByCliente(idCliente);
+    }
+
     @Get('venta/:idVenta')
     @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     findByVenta(@Param('idVenta', ParseUUIDPipe) idVenta: string) {
@@ -45,14 +52,14 @@ export class CuotaCreditoController {
         return this.cuotaCreditoService.findOne(id);
     }
 
-    // admin puede cobrar cuotas
     @Post(':id/pagar')
     @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     pagarCuota(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() pagarCuotaDto: PagarCuotaDto,
+        @GetUser() user: User,
     ) {
-        return this.cuotaCreditoService.pagarCuota(id, pagarCuotaDto);
+        return this.cuotaCreditoService.pagarCuota(id, pagarCuotaDto, user);
     }
 
     @Get(':id/mora')
@@ -67,7 +74,6 @@ export class CuotaCreditoController {
         return this.cuotaCreditoService.update(id, updateCuotaCreditoDto);
     }
 
-    // Solo super-user puede eliminar cuotas
     @Delete(':id')
     @Auth(ValidRoles.superAdmin)
     remove(@Param('id', ParseUUIDPipe) id: string) {

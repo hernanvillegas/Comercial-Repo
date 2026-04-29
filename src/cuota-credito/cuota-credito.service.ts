@@ -10,6 +10,7 @@ import { PagarCuotaDto } from './dto/pagar-cuota.dto';
 import { ConfigService } from '@nestjs/config';
 import { PaginationDto } from 'src/common/dto/paginacion.dto';
 import { EstadoCuota } from 'src/common/enums';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class CuotaCreditoService {
@@ -30,7 +31,7 @@ export class CuotaCreditoService {
     async findAll(paginationDto: PaginationDto): Promise<CuotaCredito[]> {
         const { limit = 20, offset = 0 } = paginationDto;
         return await this.cuotasRepository.find({
-            relations: ['venta', 'venta.cliente', 'movimientos'],
+            relations: ['ventaFk', 'ventaFk.cliente', 'movimientos'],
             order: { fechaVencimiento: 'ASC' },
             take: limit,
             skip: offset,
@@ -40,7 +41,7 @@ export class CuotaCreditoService {
     async findOne(id: string): Promise<CuotaCredito> {
         const cuota = await this.cuotasRepository.findOne({
             where: { idCuota: id },
-            relations: ['venta', 'venta.cliente', 'movimientos']
+            relations: ['ventaFk', 'ventaFk.cliente', 'movimientos']
         });
 
         if (!cuota)
@@ -52,16 +53,26 @@ export class CuotaCreditoService {
     async findByVenta(idVenta: string): Promise<CuotaCredito[]> {
         return await this.cuotasRepository.find({
             where: { idVentaFk: idVenta },
-            relations: ['venta', 'movimientos'],
+            relations: ['ventaFk', 'movimientos'],
             order: { numeroDeCuota: 'ASC' }
         });
     }
 
+    async findByCliente(idCliente: string): Promise<CuotaCredito[]> {
+        return await this.cuotasRepository
+            .createQueryBuilder('cuota')
+            .leftJoinAndSelect('cuota.ventaFk', 'venta')
+            .where('venta.idClienteFk = :idCliente', { idCliente })
+            .andWhere('venta.tipoVenta = :tipo', { tipo: 'credito' })
+            .andWhere('venta.estadoVenta != :estado', { estado: 'anulada' })
+            .orderBy('cuota.fechaVencimiento', 'ASC')
+            .getMany();
+    }
+
     async findWithFilters(filters: FilterCuotaCreditoDto): Promise<CuotaCredito[]> {
         const queryBuilder = this.cuotasRepository.createQueryBuilder('cuota')
-            .leftJoinAndSelect('cuota.venta', 'venta')
-            .leftJoinAndSelect('venta.cliente', 'cliente')
-            .leftJoinAndSelect('cuota.movimientos', 'movimientos');
+            .leftJoinAndSelect('cuota.ventaFk', 'ventaFk')
+            .leftJoinAndSelect('ventaFk.cliente', 'cliente');
 
         if (filters.idVentaFk)
             queryBuilder.andWhere('cuota.idVentaFk = :idVentaFk', { idVentaFk: filters.idVentaFk });
@@ -99,7 +110,7 @@ export class CuotaCreditoService {
         await this.cuotasRepository.remove(cuota);
     }
 
-    async pagarCuota(id: string, pagarCuotaDto: PagarCuotaDto): Promise<{ cuota: CuotaCredito; movimiento: MovimientoCaja }> {
+    async pagarCuota(id: string, pagarCuotaDto: PagarCuotaDto, user: User): Promise<{ cuota: CuotaCredito; movimiento: MovimientoCaja }> {
         const cuota = await this.cuotasRepository.findOne({
             where: { idCuota: id },
             relations: ['ventaFk']
@@ -111,14 +122,14 @@ export class CuotaCreditoService {
         if (cuota.estado === EstadoCuota.PAGADA)
             throw new BadRequestException('Esta cuota ya está pagada');
 
-        const nuevoMontoPagado  = Number(cuota.montoPagado) + Number(pagarCuotaDto.montoPago);
+        const nuevoMontoPagado   = Number(cuota.montoPagado) + Number(pagarCuotaDto.montoPago);
         const nuevoMontoRestante = Number(cuota.montoAcordado) - nuevoMontoPagado;
 
-        cuota.montoPagado  = nuevoMontoPagado;
+        cuota.montoPagado   = nuevoMontoPagado;
         cuota.montoRestante = nuevoMontoRestante;
 
         if (nuevoMontoRestante <= 0) {
-            cuota.estado       = EstadoCuota.PAGADA;
+            cuota.estado        = EstadoCuota.PAGADA;
             cuota.montoRestante = 0;
 
             if (cuota.faltanCuotas > 1) {
@@ -136,11 +147,13 @@ export class CuotaCreditoService {
             idCuotaFk:      cuota.idCuota,
             idVentaFk:      cuota.idVentaFk,
             montoPago:      pagarCuotaDto.montoPago,
-            tipoMovimiento: 'credito',
-            conceptoPago:   `Pago cuota ${cuota.numeroDeCuota} - Factura ${cuota.ventaFk.numeroFactura}`,
-            metodoPago:     'efectivo',
+            tipoMovimiento: 'ingreso',
+            categoria:      'cobro_cuota',
+            conceptoPago:   `Pago cuota ${cuota.numeroDeCuota} - Factura ${cuota.ventaFk?.numeroFactura ?? ''}`,
+            metodoPago:     pagarCuotaDto.metodoPago ?? 'efectivo',
             numeroRecibo:   `REC-${Date.now()}`,
-            observaciones:  pagarCuotaDto.observaciones
+            observaciones:  pagarCuotaDto.observaciones,
+            idEmpleadoFk:   user.id,
         });
 
         const movimientoCreado = await this.movimientosRepository.save(movimiento);

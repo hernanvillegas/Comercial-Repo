@@ -13,7 +13,7 @@ export class CategoriaProductoController {
     constructor(private readonly categoriaProductoService: CategoriaProductoService) {}
 
     @Post()
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     create(@Body() createCategoriaProductoDto: CreateCategoriaProductoDto) {
         return this.categoriaProductoService.create(createCategoriaProductoDto);
     }
@@ -34,13 +34,13 @@ export class CategoriaProductoController {
     }
 
     @Patch(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     update(@Param('id', ParseIntPipe) id: number, @Body() updateCategoriaProductoDto: UpdateCategoriaProductoDto) {
         return this.categoriaProductoService.update(id, updateCategoriaProductoDto);
     }
 
     @Delete(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     remove(@Param('id', ParseIntPipe) id: number) {
         return this.categoriaProductoService.remove(id);
     }

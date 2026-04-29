@@ -92,6 +92,10 @@ export class VentasService {
 
         if (producto.stock !== null) {
             producto.stock = producto.stock - 1;
+            // Si stock llega a 0, marcar como no disponible
+            if (producto.stock <= 0) {
+                producto.disponible = false;
+            }
             await queryRunner.manager.save(producto);
         }
 

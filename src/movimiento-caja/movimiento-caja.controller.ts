@@ -6,7 +6,6 @@ import { UpdateMovimientoCajaDto } from './dto/update-movimiento-caja.dto';
 import { FilterMovimientoCajaDto } from './dto/filter-movimiento-caja.dto';
 import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
-import { PaginationDto } from 'src/common/dto/paginacion.dto';
 
 @ApiTags('Movimiento-Caja')
 @Controller('movimiento-caja')
@@ -14,7 +13,6 @@ export class MovimientoCajaController {
 
     constructor(private readonly movimientoCajaService: MovimientoCajaService) {}
 
-    // admin y super-user registran movimientos de caja
     @Post('register')
     @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     create(@Body() createMovimientoCajaDto: CreateMovimientoCajaDto) {
@@ -22,15 +20,10 @@ export class MovimientoCajaController {
     }
 
     @Get()
-    findAll(
-        @Query() filters: FilterMovimientoCajaDto,
-        @Query() pagination: PaginationDto,
-    ) {
-        if (Object.keys(filters).length === 0) {
-            return this.movimientoCajaService.findAll(pagination);
-        }
+    findAll(@Query() filters: FilterMovimientoCajaDto) {
         return this.movimientoCajaService.findWithFilters(filters);
     }
+
     @Get('venta/:idVenta')
     @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     findByVenta(@Param('idVenta', ParseUUIDPipe) idVenta: string) {
@@ -43,7 +36,6 @@ export class MovimientoCajaController {
         return this.movimientoCajaService.findByCuota(idCuota);
     }
 
-    // Resumen diario solo admin y super-user
     @Get('resumen/diario')
     @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     obtenerResumenDiario(@Query('fecha') fecha?: string) {
@@ -57,7 +49,6 @@ export class MovimientoCajaController {
         return this.movimientoCajaService.findOne(id);
     }
 
-    // Solo super-user puede editar o eliminar movimientos de caja
     @Patch(':id')
     @Auth(ValidRoles.superAdmin)
     update(@Param('id', ParseUUIDPipe) id: string, @Body() updateMovimientoCajaDto: UpdateMovimientoCajaDto) {

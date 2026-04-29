@@ -99,6 +99,19 @@ export class Venta {
     @Column({ type: 'text', nullable: true })
     observaciones: string | null;
 
+    // ── Entrega final (segunda llave + documentos) ────────────────────────
+    @Column({ type: 'boolean', default: false })
+    segunda_llave_entregada: boolean;
+
+    @Column({ type: 'date', nullable: true })
+    fecha_segunda_llave: Date | null;
+
+    @Column({ type: 'boolean', default: false })
+    documentos_entregados: boolean;
+
+    @Column({ type: 'date', nullable: true })
+    fecha_entrega_documentos: Date | null;
+
     @CreateDateColumn()
     createdAt: Date;
 

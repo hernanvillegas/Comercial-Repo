@@ -102,11 +102,20 @@ export class HistorialClienteService {
       };
     });
 
-    const totalGastado  = ventas.reduce((acc, v) => acc + Number(v.precioTotal), 0);
-    const ventasContado = ventas.filter(v => v.tipoVenta === 'contado').length;
-    const ventasCredito = ventas.filter(v => v.tipoVenta !== 'contado').length;
-    const todasLasCuotas = ventas.flatMap(v => v.cuotas ?? []);
-    const moraTotal      = todasLasCuotas.reduce((acc, c) => acc + Number(c.mora), 0);
+    // Solo ventas activas para los totales
+    const ventasActivas   = ventas.filter(v => v.estadoVenta !== 'anulada');
+    const ventasAnuladas  = ventas.filter(v => v.estadoVenta === 'anulada').length;
+    const totalGastado    = ventasActivas.reduce((acc, v) => acc + Number(v.precioTotal), 0);
+    const ventasContado   = ventasActivas.filter(v => v.tipoVenta === 'contado').length;
+    const ventasCredito   = ventasActivas.filter(v => v.tipoVenta !== 'contado').length;
+    const ventasCompletadas = ventasActivas.filter(v => v.estadoVenta === 'completada').length;
+    const ventasEnCredito   = ventasActivas.filter(v => v.estadoVenta === 'en_credito').length;
+    const todasLasCuotas  = ventasActivas.flatMap(v => v.cuotas ?? []);
+    const moraTotal       = todasLasCuotas.reduce((acc, c) => acc + Number(c.mora), 0);
+    const cuotasPagadasTotal   = todasLasCuotas.filter(c => c.estado === 'pagada').length;
+    const cuotasPendientesTotal = todasLasCuotas.filter(c => c.estado === 'pendiente' || c.estado === 'vencida').length;
+    const montoPagadoTotal = todasLasCuotas.reduce((acc, c) => acc + Number(c.montoPagado), 0);
+    const montoRestanteTotal = todasLasCuotas.filter(c => c.estado !== 'pagada').reduce((acc, c) => acc + Number(c.montoRestante), 0);
 
     return {
       cliente: {
@@ -121,10 +130,17 @@ export class HistorialClienteService {
       resumen: {
         primera_compra:  historialBase?.fecha_compra       ?? ventas[ventas.length - 1]?.fechaVenta ?? null,
         ultima_compra:   historialBase?.fecha_ultima_compra ?? ventas[0]?.fechaVenta ?? null,
-        total_compras:   historialBase?.total_compras       ?? ventas.length,
-        total_gastado:   totalGastado,
-        ventas_contado:  ventasContado,
-        ventas_credito:  ventasCredito,
+        total_compras:        historialBase?.total_compras ?? ventasActivas.length,
+        total_gastado:        totalGastado,
+        ventas_contado:       ventasContado,
+        ventas_credito:       ventasCredito,
+        ventas_completadas:   ventasCompletadas,
+        ventas_en_credito:    ventasEnCredito,
+        ventas_anuladas:      ventasAnuladas,
+        cuotas_pagadas_total:    cuotasPagadasTotal,
+        cuotas_pendientes_total: cuotasPendientesTotal,
+        monto_pagado_total:      montoPagadoTotal,
+        monto_restante_total:    montoRestanteTotal,
         mora_total:      moraTotal,
         tiene_mora:      moraTotal > 0,
         observaciones:   historialBase?.observaciones  ?? null,

@@ -2,8 +2,10 @@
 import { IsOptional, IsEnum, IsNumber, IsString, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TipoVenta, EstadoVenta } from 'src/common/enums';
+import { PaginationDto } from 'src/common/dto/paginacion.dto';
 
-export class FilterVentaDto {
+export class FilterVentaDto extends PaginationDto {
+
   @IsOptional()
   @IsEnum(EstadoVenta)
   estado?: EstadoVenta;

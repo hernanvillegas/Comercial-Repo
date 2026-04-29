@@ -62,7 +62,7 @@ export class CarritoController {
 
     // Carritos abandonados (más de 24h sin actividad)
     @Get('abandonados')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     findCarritosAbandonados() {
         return this.carritoService.findCarritosAbandonados();
     }

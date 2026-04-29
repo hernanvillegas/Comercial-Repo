@@ -33,7 +33,7 @@ export class ProductoController {
     }
 
     @Get('stock-bajo')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     findStockBajo() {
         return this.productoService.findStockBajo();
     }
@@ -49,7 +49,7 @@ export class ProductoController {
     }
 
     @Patch(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     update(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() updateProductoDto: UpdateProductoDto,
@@ -59,7 +59,7 @@ export class ProductoController {
     }
 
     @Delete(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.productoService.remove(id);
     }

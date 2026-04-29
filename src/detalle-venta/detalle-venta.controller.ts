@@ -28,19 +28,25 @@ export class DetalleVentaController {
         return this.detalleVentaService.findByVenta(idVenta);
     }
 
+    @Get('producto/:idProducto')
+    @Auth()
+    findByProducto(@Param('idProducto', ParseUUIDPipe) idProducto: string) {
+        return this.detalleVentaService.findByProducto(idProducto);
+    }
+
     @Get(':id')
     findOne(@Param('id', ParseUUIDPipe) id: string) {
         return this.detalleVentaService.findOne(id);
     }
 
     @Patch(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     update(@Param('id', ParseUUIDPipe) id: string, @Body() updateDetalleVentaDto: UpdateDetalleVentaDto) {
         return this.detalleVentaService.update(id, updateDetalleVentaDto);
     }
 
     @Delete(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.detalleVentaService.remove(id);
     }

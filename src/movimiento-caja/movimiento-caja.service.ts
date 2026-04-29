@@ -44,10 +44,7 @@ export class MovimientoCajaService {
   }
 
   async findWithFilters(filters: FilterMovimientoCajaDto): Promise<MovimientoCaja[]> {
-    const queryBuilder = this.movimientosRepository.createQueryBuilder('movimiento')
-      .leftJoinAndSelect('movimiento.venta', 'venta')
-      .leftJoinAndSelect('movimiento.cuota', 'cuota')
-      .leftJoinAndSelect('venta.cliente', 'cliente');
+    const queryBuilder = this.movimientosRepository.createQueryBuilder('movimiento');
 
     if (filters.idVentaFk) {
       queryBuilder.andWhere('movimiento.idVentaFk = :idVentaFk', { idVentaFk: filters.idVentaFk });

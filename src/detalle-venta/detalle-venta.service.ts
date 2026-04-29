@@ -55,6 +55,14 @@ export class DetalleVentaService {
         });
     }
 
+    async findByProducto(idProducto: string) {
+        return await this.detalleVentaRepository.find({
+            where: { idProductoFk: idProducto },
+            relations: ['venta', 'venta.cuotas'],
+            order: { createdAt: 'DESC' }
+        });
+    }
+
     async update(id: string, updateDetalleVentaDto: UpdateDetalleVentaDto) {
         const detalle = await this.findOne(id);
         try {

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsEnum, IsUUID, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsEnum, IsUUID, IsBoolean, IsDateString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TipoVenta, EstadoVenta } from 'src/common/enums';
 
@@ -48,6 +48,22 @@ export class CreateVentaDto {
     @IsOptional()
     @IsString()
     observaciones?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    segunda_llave_entregada?: boolean;
+
+    @IsOptional()
+    @IsDateString()
+    fecha_segunda_llave?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    documentos_entregados?: boolean;
+
+    @IsOptional()
+    @IsDateString()
+    fecha_entrega_documentos?: string;
 
     @IsString()
     @IsNotEmpty()

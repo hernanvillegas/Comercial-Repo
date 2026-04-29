@@ -39,7 +39,7 @@ export class MovimientoInventarioController {
     }
 
     @Delete(':id')
-    @Auth(ValidRoles.admin)
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.movimientoInventarioService.remove(id);
     }

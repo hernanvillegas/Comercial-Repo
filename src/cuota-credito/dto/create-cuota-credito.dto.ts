@@ -27,7 +27,7 @@ export class CreateCuotaCreditoDto {
 
     @IsDateString()
     @IsNotEmpty()
-    fechaVencimiento: Date;
+    fechaVencimiento: string;
 
     @IsNumber({ maxDecimalPlaces: 2 })
     @IsNotEmpty()
