@@ -18,10 +18,11 @@ export enum TipoProducto {
 }
 
 export enum EstadoCuota {
-    PENDIENTE = 'pendiente',
-    PAGADA    = 'pagada',
-    VENCIDA   = 'vencida',
-    PARCIAL   = 'parcial',
+    PENDIENTE  = 'pendiente',
+    PAGADA     = 'pagada',
+    VENCIDA    = 'vencida',
+    PARCIAL    = 'parcial',
+    CANCELADA  = 'cancelada', // cuando la venta es anulada
 }
 
 export enum EstadoMoto {

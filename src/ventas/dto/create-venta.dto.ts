@@ -1,6 +1,7 @@
 import { IsString, IsNotEmpty, IsNumber, IsOptional, IsEnum, IsUUID, IsBoolean, IsDateString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TipoVenta, EstadoVenta } from 'src/common/enums';
+import { MetodoPago } from 'src/movimiento-caja/dto/create-movimiento-caja.dto';
 
 export class CreateVentaDto {
 
@@ -77,4 +78,10 @@ export class CreateVentaDto {
     @IsNotEmpty()
     @Type(() => Number)
     idClienteFk: number;
+
+    // Método de pago del ingreso inicial (contado = total, crédito = entrada)
+    // Si no se envía, el servicio usa 'efectivo' por defecto
+    @IsOptional()
+    @IsEnum(MetodoPago)
+    metodoPago?: MetodoPago;
 }

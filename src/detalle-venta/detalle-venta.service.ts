@@ -1,9 +1,18 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+    NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DetalleVenta } from './entities/detalle-venta.entity';
+
+import { DetalleVenta }          from './entities/detalle-venta.entity';
 import { CreateDetalleVentaDto } from './dto/create-detalle-venta.dto';
 import { UpdateDetalleVentaDto } from './dto/update-detalle-venta.dto';
+import { Producto }              from 'src/producto/entities/producto.entity';
+import { TipoProducto }          from 'src/common/enums';
 
 @Injectable()
 export class DetalleVentaService {
@@ -13,11 +22,23 @@ export class DetalleVentaService {
     constructor(
         @InjectRepository(DetalleVenta)
         private readonly detalleVentaRepository: Repository<DetalleVenta>,
+
+        // NUEVO: necesario para descontar stock de accesorios y repuestos
+        @InjectRepository(Producto)
+        private readonly productoRepository: Repository<Producto>,
     ) {}
 
     async create(createDetalleVentaDto: CreateDetalleVentaDto) {
-        if (!createDetalleVentaDto.idProductoFk && !createDetalleVentaDto.idPackFk) {
+        if (!createDetalleVentaDto.idProductoFk && !createDetalleVentaDto.idPackFk)
             throw new BadRequestException('Debe especificar idProductoFk o idPackFk');
+
+        // NUEVO: descontar stock para accesorios y repuestos
+        // Las motos ya son manejadas en VentasService.validarYDescontarStock
+        if (createDetalleVentaDto.idProductoFk) {
+            await this.descontarStockAccesorioRepuesto(
+                createDetalleVentaDto.idProductoFk,
+                createDetalleVentaDto.cantidad ?? 1,
+            );
         }
 
         try {
@@ -28,17 +49,51 @@ export class DetalleVentaService {
         }
     }
 
+    /**
+     * Descuenta stock solo para ACCESORIOS y REPUESTOS.
+     * Las motos son manejadas por VentasService para poder marcar estado_moto = VENDIDO.
+     * Los servicios no tienen stock.
+     */
+    private async descontarStockAccesorioRepuesto(
+        idProducto: string,
+        cantidad: number,
+    ): Promise<void> {
+        const producto = await this.productoRepository.findOneBy({ id: idProducto });
+
+        // Si no existe o es moto/servicio, no hacemos nada aquí
+        if (!producto) return;
+        if (producto.tipo_producto === TipoProducto.MOTO) return;
+        if (producto.tipo_producto === TipoProducto.SERVICIO) return;
+
+        // Solo descuentamos si el producto maneja stock
+        if (producto.stock === null) return;
+
+        if (producto.stock < cantidad)
+            throw new BadRequestException(
+                `Stock insuficiente para "${producto.nombre_producto}". ` +
+                `Disponible: ${producto.stock}, solicitado: ${cantidad}`,
+            );
+
+        producto.stock -= cantidad;
+        if (producto.stock <= 0) {
+            producto.stock      = 0;
+            producto.disponible = false;
+        }
+
+        await this.productoRepository.save(producto);
+    }
+
     async findAll() {
         return await this.detalleVentaRepository.find({
             relations: ['venta', 'producto', 'pack'],
-            order: { createdAt: 'DESC' }
+            order: { createdAt: 'DESC' },
         });
     }
 
     async findOne(id: string) {
         const detalle = await this.detalleVentaRepository.findOne({
             where: { id },
-            relations: ['venta', 'producto', 'pack']
+            relations: ['venta', 'producto', 'pack'],
         });
 
         if (!detalle)
@@ -51,7 +106,7 @@ export class DetalleVentaService {
         return await this.detalleVentaRepository.find({
             where: { idVentaFk: idVenta },
             relations: ['producto', 'pack'],
-            order: { createdAt: 'ASC' }
+            order: { createdAt: 'ASC' },
         });
     }
 
@@ -59,7 +114,7 @@ export class DetalleVentaService {
         return await this.detalleVentaRepository.find({
             where: { idProductoFk: idProducto },
             relations: ['venta', 'venta.cuotas'],
-            order: { createdAt: 'DESC' }
+            order: { createdAt: 'DESC' },
         });
     }
 

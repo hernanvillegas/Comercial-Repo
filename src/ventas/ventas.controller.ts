@@ -1,17 +1,37 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import {
+    Controller, Get, Post, Body,
+    Patch, Param, Delete,
+    ParseUUIDPipe, Query,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { VentasService } from './ventas.service';
-import { CreateVentaDto } from './dto/create-venta.dto';
-import { UpdateVentaDto } from './dto/update-venta.dto';
-import { FilterVentaDto } from './dto/filter-venta.dto';
-import { Auth } from 'src/auth/decorators';
-import { ValidRoles } from 'src/auth/interfaces';
+
+import { VentasService }   from './ventas.service';
+import { CreateVentaDto }  from './dto/create-venta.dto';
+import { UpdateVentaDto }  from './dto/update-venta.dto';
+import { FilterVentaDto }  from './dto/filter-venta.dto';
+import { Auth }            from 'src/auth/decorators';
+import { ValidRoles }      from 'src/auth/interfaces';
 
 @ApiTags('Ventas')
 @Controller('ventas')
 export class VentasController {
 
     constructor(private readonly ventasService: VentasService) {}
+
+    // ── IMPORTANTE: rutas estáticas ANTES que :id ─────────────────────────
+    // Si pusieramos GET :id primero, "siguiente-factura" sería interpretado
+    // como un UUID y fallaría con ParseUUIDPipe.
+
+    /**
+     * GET /ventas/siguiente-factura
+     * Devuelve el próximo número de factura garantizado único.
+     * Formato: VT-YYYYMMDD-NNN (NNN = correlativo del día, sin colisiones)
+     */
+    @Get('siguiente-factura')
+    @Auth(ValidRoles.superAdmin, ValidRoles.admin)
+    siguienteFactura() {
+        return this.ventasService.generarSiguienteNumeroFactura();
+    }
 
     @Post('register')
     @Auth(ValidRoles.superAdmin, ValidRoles.admin)
@@ -23,12 +43,8 @@ export class VentasController {
     @Auth(ValidRoles.superAdmin, ValidRoles.admin)
     findAll(@Query() query: FilterVentaDto) {
         const { limit, offset, ...filters } = query;
-
         const hasFilters = Object.values(filters).some(v => v !== undefined);
-
-        if (!hasFilters) {
-            return this.ventasService.findAll({ limit, offset });
-        }
+        if (!hasFilters) return this.ventasService.findAll({ limit, offset });
         return this.ventasService.findWithFilters(query);
     }
 
@@ -40,7 +56,10 @@ export class VentasController {
 
     @Patch(':id')
     @Auth(ValidRoles.superAdmin, ValidRoles.admin)
-    update(@Param('id', ParseUUIDPipe) id: string, @Body() updateVentaDto: UpdateVentaDto) {
+    update(
+        @Param('id', ParseUUIDPipe) id: string,
+        @Body() updateVentaDto: UpdateVentaDto,
+    ) {
         return this.ventasService.update(id, updateVentaDto);
     }
 
